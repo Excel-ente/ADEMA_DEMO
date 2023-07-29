@@ -1,0 +1,180 @@
+{% extends 'core/base.html' %}
+
+{% load static %}
+{% load humanize %}
+{% block content %}
+
+
+
+<!-- Modal de clientes -->
+<div class="modal fade" id="modalClientes" tabindex="-1" role="dialog" aria-labelledby="modalClientesLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-primary" id="modalClientesLabel">Seleccionar cliente</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- Aquí colocamos la lista de clientes -->
+                <ul class="list-group">
+                    {% for cliente in lista_clientes %}
+                        <li class="list-group-item">
+                            <a href="#" class="select-cliente" data-id="{{ cliente.id }}" data-nombre="{{ cliente.nombre }}">
+                                {{ cliente.nombre }}
+                            </a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="container">
+    <div class="" style="text-align: start;">
+        <h1 class="text-light p-3" style="margin-top: 70px;"><b></b></h1>
+    </div>
+    <div class="row" style="min-height: 80vh;">
+        <div class="card p-3" style="border: none;">
+
+            <div class="row">
+                <!-- Colocar el texto a la derecha -->
+                <div class="col-6 card p-3" style="border: none;text-align: center;">
+                    <div class="row mt-3">   
+                        <div class="col-6">
+                            <h6 class="text-dark">Venta # {{ venta.codigo }}</h6>
+                        </div>
+                        <div class="col-6">
+                            <h5 class="text-success">Items : {{ venta.get_cart_items|floatformat:0|intcomma }}</h5>
+                        </div>
+                    </div>
+
+                    <div class="row mt-3">
+                        <h2 class="text-danger">Total : $ {{ venta.get_cart_total|intcomma }}</h2>
+                    </div>
+    
+                    <div class="row mt-3">
+                        <h5 class="text-primary">Cliente : <b class="text-dark">{{ venta.cliente }}</b></h5>
+                    </div>
+
+
+                    <div class="row" style="align-items: center;margin: 20px;">             
+                        <button class="btn btn-outline-primary" type="button" data-toggle="modal" data-target="#modalClientes">
+                        Buscar cliente <i class="fas fa-search"></i>
+                    </button>
+                </div>
+                </div>
+
+                <!-- Colocar el botón a la izquierda -->
+                <div class="col-6 text-center">
+                    <div class="container mt-3 text-dark">
+
+                        <div class="row" style="margin: 15px;">
+                            <button class="btn btn-success" data-toggle="" data-target="/producto/create">
+                                <b style="font-size: large;"><a href="/" style="color: aliceblue; text-decoration: none;">Agregar productos</a></b>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-body">
+                
+                {% if data.eliminado %}
+                <p class="text-success text-center">
+                    {{ data.eliminado }}
+                </p>
+            {% endif %}
+            <div class="row justify-content-center">
+                <div class="row card" style="border: none;">
+                    <table class="table">
+                        <thead class="bg-primary" style="color: aliceblue;">
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">Producto</th>
+                            <th scope="col">Cantidad</th>
+                            <th scope="col">Precio P/U</th>
+                            <th scope="col">Total</th>
+                            {% if venta.estado == venta.ESTADO_CREADA %}
+                                <th class="text-center" scope="col">Remover</th>
+                            {% endif %}
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for detalle in lista_detalle %}
+                            <tr>
+                                <td>{{ forloop.counter }}</td>
+                                <td>{{ detalle.producto.nombre }}</td>
+                                <td>{{ detalle.cantidad|intcomma }}</td>
+                                <td>$ {{ detalle.precio|intcomma }}</td>
+                                <td>$ {{ detalle.get_total|intcomma }}</td>
+                                {% if venta.estado == venta.ESTADO_CREADA %}
+                                    <td class="text-center">
+                                        <form id="detalle{{ detalle.id }}" action="" method="post">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="detalle_id" id="detalle_id" value="{{ detalle.id }}">
+                                            <button name="btnquitardecarrito{{ detalle.id }}" type="submit"
+                                                    class="btn btn-danger btn-circle">
+                                                <i class="fa fa-minus btn-add"></i>
+                                            </button>
+                                        </form>
+                                    </td>
+                                {% endif %}
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <div class="row card" style="border: none;">
+                <div class="mt-4">
+                    {% if lista_detalle %}
+                        <form action="" method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="id_venta" value="{{ venta.id }}">
+        
+                            {% if venta.estado == venta.ESTADO_CREADA %}
+                                <a class="btn btn-danger" href="{% url 'venta:anular' venta.id %}">Cancelar venta</a>
+                                <input name="pagar" type="submit" class="btn btn-success btn-lg" value="Cerrar Carrito">
+                            {% endif %}
+                            {% if venta.estado == venta.ESTADO_PAGADA %}
+                                <a class="btn btn-danger" href="{% url 'venta:anular' venta.id %}">Anular venta</a> |
+                                <input name="finalizar" type="submit" class="btn btn-success btn-lg" value="Nueva venta"> |
+                                <a class="btn btn-info" href="{% url 'venta:facturar' venta.id %}">Asignar venta</a>
+                            {% endif %}
+                            {% if venta.estado == venta.ESTADO_FACTURADA %}
+                                <a class="btn btn-danger" href="{% url 'venta:anular' venta.id %}">Anular venta</a>
+                                <input name="finalizar" type="submit" class="btn btn-success btn-lg" value="Nueva venta">
+                            {% endif %}
+                        </form>
+                    {% endif %}
+        
+                </div>
+                </div>
+            </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    
+</div>
+
+
+
+<script>
+    $(document).ready(function () {
+        // Cuando se hace clic en un cliente en el modal
+        $('.select-cliente').on('click', function () {
+            const clienteId = $(this).data('id');
+            const clienteNombre = $(this).data('nombre');
+            $('#cliente').val(clienteNombre); // Actualizamos el input con el nombre del cliente
+            $('#id_cliente').val(clienteId); // Agregamos el ID del cliente al campo oculto
+            $('#modalClientes').modal('hide'); // Cerramos el modal
+        });
+    });
+</script>
+{% endblock %}

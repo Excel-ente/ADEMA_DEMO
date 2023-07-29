@@ -1,0 +1,149 @@
+{% extends 'core/base.html' %}
+{% load humanize %}
+{% block styles %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'producto/css/style.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="" style="text-align: start;">
+        <h1 class="text-light p-3" style="margin-top: 80px;"><b></b></h1>
+    </div>
+    <div class="card p-3 d-flex">
+        <div class="card-body">
+
+            <div class="row d-flex">
+                <form class="form-inline mr-auto" action="" method="post">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col-9">
+                            <input name="search" class="form-control" type="text" placeholder="Busqueda avanzada..." aria-label="Search">
+                        </div>
+                        <div class="col-3">
+                            <button name="btnsearch" class="btn btn-success btn-rounded btn-sm my-0 ml-sm-2" type="submit" >Buscar</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div class="row">
+                {% if data.status %}
+                    {% if data.status == 'False' %}
+                        <p class="text-danger">No se pudo añadir el producto</p>
+                        Razón: <p class="text-danger" style="font-size: large; display: inline-block;">Para ingresar artículos al carrito debe crear una nueva venta.</p>
+                        {% else %}
+                        {% if data.status == 'Sin resultados' %}
+                            <p class="text-danger">Sin resultados</p>
+                        {% else %}
+                            <p class="text-success">{{ data.status }}</p>
+                        {% endif %}
+                    {% endif %}
+                {% endif %}
+
+                {% if data.error %}
+                    <p class="text-danger">
+                        {{ data.error }}
+                    </p>
+                {% endif %}
+            </div>
+            
+            <div class="row">
+                <div class="row col-12 mt-3">
+                    {% for producto in producto_list %}
+                        
+                            <div class="col-sm-6 col-md-5 col-lg-3 py-2">
+                                <div class="card mr-2 text-dark">
+                                    <div class="card-header bg-primary">                         
+                                        <!-- Button trigger modal -->
+                                        <button type="button" class="btn btn-danger btn-circle" data-toggle="modal"
+                                                data-target="#addToCart{{ producto.id }}">Añadir al carrito 
+                                            
+                                        </button>
+
+                                        <!-- Modal -->
+
+                                        <div class="modal fade" id="addToCart{{ producto.id }}" tabindex="-1" role="dialog"
+                                            aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+                                            <div class="modal-dialog modal-dialog-centered" role="document">
+                                                <div class="modal-content">
+                                                    <form action="" method="post">
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title text-primary" id="exampleModalLongTitle">Añadir a
+                                                                carrito: {{ producto.nombre }}</h5>
+                                                            <button type="button" class="close" data-dismiss="modal"
+                                                                    aria-label="Close">
+                                                                <span aria-hidden="true">&times;</span>
+                                                            </button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            {% csrf_token %}
+                                                            <input type="hidden" name="id_producto" id="id_producto"
+                                                                value="{{ producto.id }}">
+                                                            <label class="text-primary"  for="cantidad">Cantidad</label>
+                                                            <input required name="cantidad" id="cantidad" type="number"
+                                                                class="form-control"
+                                                                step=".01"
+                                                                min="1"
+                                                                max="{{ producto.en_stock }}" value="1">
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <button type="submit" class="btn btn-primary btn-block">Añadir</button>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                </div>        
+                                    
+                                    <div class="card-body">
+                                       <!--{% if producto.imagen %}
+                                            <img src="{{ producto.imagen.url }}" alt="{{ producto.nombre }}">
+                                        {% else %}
+
+                                            <img src="{% static 'img\productDefault.png' %}" alt="{{ producto.nombre }}">
+                                        {% endif %}
+                                    --> 
+                                        <hr>
+                                        <b class="text-primary" style="font-size: x-large;"><p class="card-title">
+                                            {{ producto.nombre }}
+                                        </p></b>
+                                        <p class="card-text">
+
+                                            {{ producto.descripcion }}
+                                        </p>
+                                        <hr>
+                                        <b><p class="mb-2 text-danger" style="font-size: x-large;">$ {{ producto.precio|intcomma }}</p></b>
+
+                                    </div>
+
+                                    <div class="card-footer bg-transparent">
+                                        <div class="row">
+                                            <div class="col">
+                                                En stock:
+                                                <br>
+                                                {% if producto.en_stock >= 0 %}
+                                                <b class="text-success">{{ producto.en_stock }}</b>
+                                                {% else %}
+                                                <b class="text-danger">{{ producto.en_stock }}</b>
+                                                {% endif %}
+                                            </div>
+                                            <div class="col">
+                                                Categoría:
+                                                <br>
+                                                <b class="text-danger">{{ producto.categoria|default:'Sin categoría' }}</b>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}

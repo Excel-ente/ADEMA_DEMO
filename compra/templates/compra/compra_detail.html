@@ -1,0 +1,43 @@
+{% extends 'core/base.html' %}
+{% block title %}
+    Detalle compra
+{% endblock %}
+{% block content %}
+<div class="card p-3">
+    <div class="card-header">    
+        <h1 class="mt-3 mb-4 text-center">Detalle de compra</h1>
+        <p class="text-center d-6 font-italic">Código <span class="secondary font-weight-bold">{{ compra.codigo }}</span></p>
+    </div>
+    <div class="card-body">
+        <div class="compra-info">
+            {% if compra.nit and compra.nombre_factura %}
+                <p>Nombre factura: <span class="secondary font-weight-bold">{{ compra.nombre_factura }}</span></p>
+                <p>Nit: <span class="secondary font-weight-bold">{{ compra.nit }}</span></p>
+            {% else %}
+                <p class="text-primary">Sin factura</p>
+            {% endif %}
+            <p>Fecha de compra: <span class="secondary font-weight-bold">{{ compra.get_date }}</span></p>
+        </div>
+        <p class="h5">Productos</p>
+        <ul class="list-group">
+            {% for detallecompra in compra.detallecompra_set.all %}
+                <li class="list-group-item">
+                    <p>{{ detallecompra.producto.nombre }}
+                        <span class="secondary float-right">$ {{ detallecompra.precio }}</span>
+                        <span class="secondary float-right">Cantidad {{ detallecompra.cantidad }}--</span>
+                    </p>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <div class="card-footer">
+        <div class="mt-4">
+            <p>Total productos: <span class="secondary">{{ compra.get_cart_items }}</span></p>
+            <p>Total compra: <span class="secondary">$ {{ compra.get_cart_total }}</span></p>
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}

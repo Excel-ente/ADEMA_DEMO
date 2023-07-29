@@ -1,0 +1,28 @@
+{% extends 'core/base.html' %}
+{% block content %}
+
+<div class="container" style="min-height: 90vh;">
+    <div class="" style="text-align: start;">
+        <h1 class="text-light p-3" style="margin-top: 100px;"><b>Actualizar producto</b></h1>
+    </div>
+    
+    <div class="card p-3 text-dark">
+        <div class="card-body">
+            <h1 class="text-danger">{{ object.nombre }}</h1>
+            <p>Descripción: <span>{{ object.descripción }}</span></p>
+            <p>En stock: <span>{{ object.en_stock }}</span></p>
+            <p>Precio: <span>{{ object.precio }}</span></p>
+            <p>Categoría: <span>{{ object.categoria }}</span></p>
+            <form action="" method="post">{% csrf_token %}
+                <p>¿Estás seguro de que quiere borrar este producto?</p>
+                <input class="btn btn-primary btn-block" type="submit" value="Sí, borrar el producto"/>
+                <a href="/producto/gestionar"><input class="btn btn-danger btn-block" type="button" value="Volver"/></a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}        
+
+
+
+

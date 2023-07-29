@@ -1,0 +1,61 @@
+{% extends 'core/base.html' %}
+{% block title %}
+    Gestionar Productos
+{% endblock %}
+{% block content %}
+<!-- jQuery CDN -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-oC7cv2T8pA2dELiO4K6q6JvC6K4NJd/b9F2Jk2FZuZM=" crossorigin="anonymous"></script>
+
+<div class="container">
+    <div class="" style="text-align: start;">
+        <h1 class="text-light p-3" style="margin-top: 70px;"><b></b></h1>
+    </div>
+    
+    <div class="card p-3">
+        <div class="mt-2 d-flex">
+            <button class="btn btn-primary" data-toggle="" data-target="/producto/create" >
+                <b style="font-size: large;"><a href="/producto/create" style="color: aliceblue;text-decoration: none;">Nuevo Producto</a></b>
+            </button>
+        </div>
+        
+        <hr class="text-secondary" style="height: 15px;">
+        <table class="table table-hover">
+            <thead>
+            <tr>
+                <!--<th scope="col">#</th>-->
+                <th scope="col">Nombre</th>
+                <th scope="col">Envase</th>
+                <th scope="col">En stock</th>
+                <th scope="col">Categoría</th>
+                <th scope="col">Precio</th>
+                <th scope="col">Opciones</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for producto in producto_list %}
+                <tr>
+                    <!--<td scope="row">{{ producto.id }}</td>-->
+                    <td>{{ producto.nombre }}</td>
+                    <td>{{ producto.descripcion|truncatechars:100 }}</td>
+
+                    {% if producto.en_stock >= 0 %}
+                    <td><b class="text-success">{{ producto.en_stock|floatformat:0 }}</b></td>
+                    {% else %}
+                    <td><b class="text-danger">{{ producto.en_stock|floatformat:0 }}</b></td>
+                    {% endif %}
+                    <td>{{ producto.categoria|default:'Sin Categoría' }}</td>
+                    <td>$ {{ producto.precio }}</td>
+                    <td>
+                        <a class="btn btn-primary"
+                        href="{% url 'producto:update' producto.id %}">Editar</a>
+                        <a class="btn btn-danger"
+                        href="{% url 'producto:delete' producto.id %}">Eliminar</a>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+</div>
+</div>
+
+{% endblock %}

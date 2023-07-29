@@ -1,0 +1,128 @@
+{% extends 'core/base.html' %}
+{% block title %}
+    Carrito
+{% endblock %}
+{% block styles %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'producto/css/style.css' %}">
+{% endblock %}
+{% block content %}
+<div class="">
+    <div class="card p-3">
+        <div class="card-header bg-primary " style="color: aliceblue;">
+            <div class="row" style="height: 110px;">
+                <!-- Icono para ver ventas anteriores -->
+                <a class="nav-link" href="{% url 'venta:ventas' %}" style="color: aliceblue;">
+                    <b>
+                        Ventas Anteriores
+                    </b>
+                </a>
+                <a class="nav-link" href="{% url 'venta:ventasPorProducto' %}" style="color: aliceblue;">
+                    <b>
+                        Ventas por producto
+                    </b>
+                </a>
+                <a class="nav-link" href="/admin/" style="color: rgb(255, 240, 240);">
+                    <b>
+                        Panel de Administracion
+                    </b>
+                </a>
+            </div>
+            <div class="float-right">
+                <a class="nav-link" href="{% url 'venta:product_list' %}" style="color: aliceblue;">
+                    <b>
+                        <i class='fas fa-plus'></i>
+                        Agregar más productos
+                    </b>
+                </a>
+            </div>
+        </div>
+        <div class="card-body">
+            
+            <div>
+                <p>Venta Actual : {{ venta.codigo }}</p>
+            </div>
+            {% if data.eliminado %}
+            <p class="text-success text-center">
+                {{ data.eliminado }}
+            </p>
+        {% endif %}
+        <div class="row justify-content-center mt-3">
+            <table class="table">
+                <thead class="bg-primary" style="color: aliceblue;">
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Producto</th>
+                    <th scope="col">Cantidad</th>
+                    <th scope="col">Precio P/U</th>
+                    <th scope="col">Total</th>
+                    {% if venta.estado == venta.ESTADO_CREADA %}
+                        <th class="text-center" scope="col">Remover</th>
+                    {% endif %}
+                </tr>
+                </thead>
+                <tbody>
+                {% for detalle in lista_detalle %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ detalle.producto.nombre }}</td>
+                        <td>{{ detalle.cantidad }}</td>
+                        <td>$ {{ detalle.precio }}</td>
+                        <td>$ {{ detalle.get_total }}</td>
+                        {% if venta.estado == venta.ESTADO_CREADA %}
+                            <td class="text-center">
+                                <form id="detalle{{ detalle.id }}" action="" method="post">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="detalle_id" id="detalle_id" value="{{ detalle.id }}">
+                                    <button name="btnquitardecarrito{{ detalle.id }}" type="submit"
+                                            class="btn btn-danger btn-circle">
+                                        <i class="fa fa-minus btn-add"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        {% endif %}
+                    </tr>
+                {% endfor %}
+                <tr class="bg-light">
+                    <td></td>
+                    <td>Total</td>
+                    <td class="text-danger font-weight-bold">{{ venta.get_cart_items }}</td>
+                    <td></td>
+                    <td class="text-danger font-weight-bold">
+                        $ {{ venta.get_cart_total }}
+                    </td>
+                    {% if venta.estado == venta.ESTADO_CREADA %}
+                        <td></td>
+                    {% endif %}
+                </tr>
+                </tbody>
+            </table>
+            <div class="mt-4">
+                {% if lista_detalle %}
+                    <form action="" method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="id_venta" value="{{ venta.id }}">
+    
+                        {% if venta.estado == venta.ESTADO_CREADA %}
+                            <a class="btn btn-danger" href="{% url 'venta:anular' venta.id %}">Cancelar venta</a>
+                            <input name="pagar" type="submit" class="btn btn-success btn-lg" value="Pagar venta">
+                        {% endif %}
+                        {% if venta.estado == venta.ESTADO_PAGADA %}
+                            <a class="btn btn-danger" href="{% url 'venta:anular' venta.id %}">Anular venta</a> |
+                            <input name="finalizar" type="submit" class="btn btn-success btn-lg" value="Finalizar venta"> |
+                            <a class="btn btn-info" href="{% url 'venta:facturar' venta.id %}">Facturar venta</a>
+                        {% endif %}
+                        {% if venta.estado == venta.ESTADO_FACTURADA %}
+                            <a class="btn btn-danger" href="{% url 'venta:anular' venta.id %}">Anular venta</a>
+                            <input name="finalizar" type="submit" class="btn btn-success btn-lg" value="Finalizar venta">
+                        {% endif %}
+                    </form>
+                {% endif %}
+    
+            </div>
+        </div>
+        </div>
+    </div>
+    
+</div>
+{% endblock %}

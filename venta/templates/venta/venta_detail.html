@@ -1,0 +1,78 @@
+{% extends 'core/base.html' %}
+{% block title %}
+    Detalle venta
+{% endblock %}
+{% block content %}
+<div class="container">
+    <div class="" style="text-align: start;">
+        <h1 class="text-light p-3" style="margin-top: 70px;"><b></b></h1>
+    </div>
+    <div class="card p-3 text-dark" style="text-align: left;">
+        <div class="card-header bg-primary text-light">  
+
+                <h1 class="mt-3 mb-4 text-center">Detalle de venta</h1>
+                <p class="text-right d-6 font-italic">Código <span class="secondary font-weight-bold">{{ venta.codigo }}</span></p>
+                <p class="text-right d-6 font-italic">Vendedor <span class="secondary font-weight-bold">{{ venta.nombre_factura }}</span></p>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <p>Fecha de venta: <span class="secondary font-weight-bold">{{ venta.get_date }}</span></p>
+                            {% if venta.nit and venta.nombre_factura %}
+                            <span class="secondary font-weight-bold"></span>
+                            <p>Cliente: <span class="secondary font-weight-bold">{{ venta.cliente.nombre }}</span></p>
+                            <p>Direccion: <span class="secondary font-weight-bold">{{ venta.cliente.direccion }}</span></p>
+                            {% else %}
+                            <p class="text-primary">Sin factura</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <p class="text-right">La Quiaca </p>
+                            <p class="text-right">Av. Rivacavia 123, La Quiaca Jujuy</p>
+                            <p class="text-right">11 5705 5555</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card  text-center">
+                <div class="card-header bg-primary text-light">
+                    <p class="h5">Productos incluidos en la compra</p>
+                </div>
+                <div class="card-body  text-center">
+                    <div class="row p-3">
+                        <ul class="list-group">
+                            {% for detalleventa in venta.detalleventa_set.all %}
+                            <div class="row">
+                                <div>
+                                    <p> <b class="text-dark">{{ detalleventa.producto }}</b> &nbsp; &nbsp;
+                                        <b class="text-success">Cant. {{ detalleventa.cantidad|floatformat:0 }}</b> &nbsp; &nbsp;
+                                        P/U $ <b class="text-danger">{{ detalleventa.precio|floatformat:0 }} </b> &nbsp; &nbsp; |&nbsp; &nbsp; <b>TOTAL</b> $ <b class="text-danger" >{{ detalleventa.get_total|floatformat:0 }}</b>
+                                    </p>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    <hr>
+                    <div class="row p-2">
+                        <div class="mt-4 d-flex justify-content-between">
+                            <p>Total productos: <span class="secondary">{{ venta.get_cart_items }}</span></p>
+                            <p><b style="margin-right: 15px;font-size: large;">Total </b><span class="secondary text-danger" style="font-size: 25px;font-weight: bold;">${{ venta.get_cart_total }}</span></p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <div class="card-footer bg-primary text-light">
+
+        </div>
+    </div>
+</div>
+{% endblock %}

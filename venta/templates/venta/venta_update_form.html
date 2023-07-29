@@ -1,0 +1,43 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+<div class="container">
+    <div class="" style="text-align: start;">
+        <h1 class="text-light p-3" style="margin-top: 60px;"><b></b></h1>
+    </div>
+    <div class="mt-4 card" style="border: none;">
+        {% if venta.estado == venta.ESTADO_CREADA %}
+            <h1>Cancelar venta</h1>
+        {% else %}
+            <h1>Anular venta</h1>
+        {% endif %}
+        <hr>
+        <h2 class="h5 mt-4 mb-4 text-danger">Detalles:</h2>
+        <p class="card-subtitle h6 mb-2 text-muted">Código de venta: {{ venta.codigo }}</p>
+        <p class="card-subtitle h6 mb-2 text-muted">Fecha de venta: {{ venta.get_date }}</p>
+
+        <p class="h5 mt-4 mb-4 text-danger">Productos:</p>
+        <ul class="list-group p-3">
+            {% for detalleventa in venta.detalleventa_set.all %}
+                <li class="list-group-item" style="border: none;font-size: larger;">
+                    <p><b>{{ detalleventa.producto }}</b> | 
+                        <span class="secondary float-right"> Cantidad: <b class="text-success">{{ detalleventa.cantidad|floatformat:0 }}</b>  |</span>
+                        <span class="secondary float-right"> P/U $ <b class="text-danger">{{ detalleventa.precio|floatformat:0 }} </b>| TOTAL $ <b class="text-danger" >{{ detalleventa.get_total|floatformat:0 }}</b></span>
+                    </p>
+                </li>
+            {% endfor %}
+        </ul>
+        <hr>
+        <form class="form-group mt-5 p-3" action="" method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            {% if venta.estado == venta.ESTADO_CREADA %}
+                <button type="submit" class="btn btn-danger btn-block">Confirmar cancelar</button>
+            {% else %}
+                <button type="submit" class="btn btn-danger btn-block">Confirmar anular</button>
+            {% endif %}
+            <a class="btn btn-primary btn-block" href="{% url 'venta:ventas' %}">Cancelar</a>
+        </form>
+    </div>
+</div>
+{% endblock %}
