@@ -24,7 +24,6 @@ from django.template.loader import get_template
 from xhtml2pdf import pisa
 from reportlab.lib.pagesizes import letter
 
-
 def imprimir_ticket(request, venta_id):
     # Obtén la venta actual
     venta = obtener_venta_actual()
@@ -40,19 +39,23 @@ def imprimir_ticket(request, venta_id):
     # Renderizar la plantilla con el contexto
     rendered_template = template.render(context)
 
-    # Cambiar el tamaño de página a 80 mm de ancho y mantener la relación de aspecto
+    # Crear un objeto de respuesta HTTP con el tipo MIME adecuado para PDF
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = f'filename=ticket_venta_{venta_id}.pdf'
-    response['Content-Transfer-Encoding'] = 'binary'
-    response['Accept-Ranges'] = 'none'
 
-    pisa.CreatePDF(
-        rendered_template, dest=response, encoding='UTF-8',
+    # Convertir la plantilla HTML a PDF y guardar en el objeto de respuesta
+    pisa_status = pisa.CreatePDF(
+        rendered_template, dest=response, encoding='utf-8',
         link_callback=fetch_resources,
-        default_css=".pagenumber { content: counter(page); } @page { size: 80mm 297mm landscape; margin: 2mm; }"
+        pagesize=letter,
     )
 
+    # Si la conversión fue exitosa, enviar el PDF como respuesta; de lo contrario, devolver un error
+    if pisa_status.err:
+        return HttpResponse('Error al generar el PDF', status=500)
+
     return response
+
 
 # Función para cargar recursos externos cuando se genera el PDF
 def fetch_resources(uri, rel):
