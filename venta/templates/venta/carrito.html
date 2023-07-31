@@ -136,16 +136,19 @@
                             <input type="hidden" name="id_venta" value="{{ venta.id }}">
         
                             {% if venta.estado == venta.ESTADO_CREADA %}
-                                <a class="btn btn-danger" href="{% url 'venta:anular' venta.id %}">Cancelar venta</a>
+                            <!--<a class="btn btn-danger" href="{% url 'venta:anular' venta.id %}">Cancelar venta</a>-->
                                 <input name="pagar" type="submit" class="btn btn-success btn-lg" value="Cerrar Carrito">
+                                
                             {% endif %}
                             {% if venta.estado == venta.ESTADO_PAGADA %}
-                                <a class="btn btn-danger" href="{% url 'venta:anular' venta.id %}">Anular venta</a> |
+                                  <!-- <a class="btn btn-danger" href="{% url 'venta:anular' venta.id %}">Anular venta</a>--> |
                                 <input name="finalizar" type="submit" class="btn btn-success btn-lg" value="Nueva venta"> |
-                                <a class="btn btn-info" href="{% url 'venta:facturar' venta.id %}">Asignar venta</a>
+                                <a id="btnImprimir" onclick="imprimirTicket()" class="btn btn-primary" href="{% url 'venta:imprimir' venta.id %}">Imprimir</a>
+
+
                             {% endif %}
                             {% if venta.estado == venta.ESTADO_FACTURADA %}
-                                <a class="btn btn-danger" href="{% url 'venta:anular' venta.id %}">Anular venta</a>
+                               <!-- <a class="btn btn-danger" href="{% url 'venta:anular' venta.id %}">Anular venta</a>--> |
                                 <input name="finalizar" type="submit" class="btn btn-success btn-lg" value="Nueva venta">
                             {% endif %}
                         </form>

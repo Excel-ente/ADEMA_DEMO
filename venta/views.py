@@ -1,3 +1,4 @@
+
 import datetime
 import time
 import calendar
@@ -11,16 +12,54 @@ from django.contrib.auth.decorators import login_required
 from django.urls import reverse_lazy
 from django.views.generic import ListView, UpdateView, DetailView
 from django.utils.decorators import method_decorator
-
-
 from venta.forms import VentaForm, VentaFacturaForm
-
 from venta.models import Venta, DetalleVenta
 from compra.models import Compra
 from producto.models import Producto
 from agenda.models import Cliente
 from django.utils import timezone
+from django.shortcuts import render
+from django.http import HttpResponse
+from django.template.loader import get_template
+from xhtml2pdf import pisa
+from reportlab.lib.pagesizes import letter
 
+
+def imprimir_ticket(request, venta_id):
+    # Obtén la venta actual
+    venta = obtener_venta_actual()
+
+    # Cargar la plantilla HTML del ticket
+    template = get_template('ticket.html')
+
+    # Contexto para la plantilla
+    context = {
+        'venta': venta,
+    }
+
+    # Renderizar la plantilla con el contexto
+    rendered_template = template.render(context)
+
+    # Cambiar el tamaño de página a 80 mm de ancho y mantener la relación de aspecto
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'filename=ticket_venta_{venta_id}.pdf'
+    response['Content-Transfer-Encoding'] = 'binary'
+    response['Accept-Ranges'] = 'none'
+
+    pisa.CreatePDF(
+        rendered_template, dest=response, encoding='UTF-8',
+        link_callback=fetch_resources,
+        default_css=".pagenumber { content: counter(page); } @page { size: 80mm 297mm landscape; margin: 2mm; }"
+    )
+
+    return response
+
+# Función para cargar recursos externos cuando se genera el PDF
+def fetch_resources(uri, rel):
+    from django.conf import settings
+
+    path = static(uri.replace(settings.STATIC_URL, ""))
+    return path
 
 
 @method_decorator(login_required, name='dispatch')

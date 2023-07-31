@@ -11,6 +11,7 @@ venta_patterns = ([
                       path('ventas/detail/<int:pk>/', views.VentaDetail.as_view(), name='detail'),
                       path('ventas/anular/<int:pk>/', views.VentaUpdate.as_view(), name='anular'),
                       path('ventas/facturar/<int:pk>/', views.VentaFactura.as_view(), name='facturar'),
+                      path('imprimir/<int:venta_id>/', views.imprimir_ticket, name='imprimir'),
                       path('carrito/', views.carrito, name='carrito'),
                   ], 'venta')
 
