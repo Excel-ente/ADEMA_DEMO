@@ -17,12 +17,12 @@
         body {
             font-family: Arial, sans-serif;
             font-size: 12px;
-            margin: 5px;
+            margin: 0px;
         }
         
         h1 {
-            font-size: 16px;
-            margin-bottom: 5px;
+            font-size: 18px;
+            margin-bottom: 0px;
         }
         
         h4 {
@@ -36,31 +36,37 @@
         }
         
         ul li {
-            font-size: 10px;
+            font-size: 12px;
             margin-bottom: 3px;
         }
         
         p, b {
-            font-size: 10px;
+            font-size: 12px;
         }
-
+        .total {
+            text-align: right;
+        }
+        b {
+            text-align: right;
+        }  
     </style>
 </head>
-<body>
+<body >
     <h1>La Quiaca</h1>
-    <h4>Av. Rivadavia 2514, La Quiaca, Jujuy</h4>
-    <h4>011 15 4578 6589</h4>
+    <h4>Balcarce 724 La Quiaca, Jujuy</h4>
+    <h4>+54 9 3885 41-0214</h4>
     <hr>
+    <p>Nº Venta: {{ venta.id }}</p>  
     <p>Cliente: {{ venta.cliente }}</p>
     <p>Fecha: {{ venta.fecha }}</p>
     <hr>
     <h2>Detalles de la Venta:</h2>
     <ul>
         {% for detalle in venta.detalleventa_set.all %}
-        <li>{{ detalle.producto.nombre }} x{{ detalle.cantidad|floatformat:0 }} |<b style="color: red;"> ${{ detalle.get_total|floatformat:0|intcomma }}</b></li>
+        <li>{{ detalle.producto.nombre }} x{{ detalle.cantidad|floatformat:0 }} |<b style="color: rgb(0, 0, 0);"> ${{ detalle.get_total|floatformat:0|intcomma }}</b></li>
         {% endfor %}
     </ul>
     <hr>
-    <p>Total: <b style="color: red; font-size: 12px;">${{ venta.get_cart_total|floatformat:0|intcomma }}</b></p>
+    <p class="total">Total: <b style="color: rgb(0, 0, 0); font-size: 12px;">${{ venta.get_cart_total|floatformat:0|intcomma }}</b></p>
 </body>
 </html>
