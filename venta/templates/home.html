@@ -1,5 +1,5 @@
 {% extends 'core/base.html' %}
-
+{% load humanize %}
 {% block content %}
 
 <div class="container" style="min-height: 100vh;">
@@ -36,7 +36,7 @@
                     <div class="card" style="border: none;">
                         <div class="card-body">
                             <h4 class="text-primary">Total</h4>
-                            <h4 class="text-danger"><b>$ {{ total }}</b></h4>
+                            <h4 class="text-danger"><b>$ {{ total|intcomma }}</b></h4>
                         </div>
                     </div>
                 </div>
@@ -59,8 +59,8 @@
                             <td>{{ detalle.fecha }}</td>
                             <td>{{ detalle.producto.nombre }}</td>
                             <td>{{ detalle.cantidad }}</td>
-                            <td>$ {{ detalle.precio }}</td>
-                            <td>$ {{ detalle.get_total }}</td>
+                            <td>$ {{ detalle.precio|intcomma }}</td>
+                            <td>$ {{ detalle.get_total|intcomma }}</td>
                         </tr>
                     {% endfor %}
 
