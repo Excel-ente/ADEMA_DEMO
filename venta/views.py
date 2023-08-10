@@ -14,6 +14,7 @@ from django.views.generic import ListView, UpdateView, DetailView
 from django.utils.decorators import method_decorator
 from venta.forms import VentaForm, VentaFacturaForm
 from venta.models import Venta, DetalleVenta
+from agenda.models import Gasto,Retiro
 from compra.models import Compra
 from producto.models import Producto
 from agenda.models import Cliente
@@ -69,30 +70,43 @@ def fetch_resources(uri, rel):
 class VentaList(ListView):
     model = Venta
     queryset = Venta.objects.all().order_by('-fecha')
-    template_name = 'ruta_del_template/venta_list.html'  # Reemplaza 'ruta_del_template' con la ruta a tu plantilla
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        # Obtener el total de ventas del día actual
-        total_hoy = Venta.objects.filter(
-            Q(fecha__date=timezone.now().date()) & (Q(estado=1) | Q(estado=2) | Q(estado=3))
-        ).aggregate(Sum('total'))['total__sum'] or 0
+        desde = self.request.GET.get('desde')
+        hasta = self.request.GET.get('hasta')
 
-        context['total_hoy'] = total_hoy
+        lista_ventas = DetalleVenta.objects.all()
+
+        if desde and hasta:
+            # Filtrar las ventas dentro del rango de fechas especificado
+            ventas_filtradas = Venta.objects.filter(
+                fecha__date__range=[desde, hasta],  # Utilizar el rango de fechas
+                estado__in=[1, 2, 3]  # Filtrar por estados específicos
+            )
+            # Filtrar los detalles de venta relacionados con las ventas filtradas
+            lista_ventas = DetalleVenta.objects.filter(venta__in=ventas_filtradas)
+
+        else:
+            ventas_filtradas = Venta.objects.all()
+
+
+        # Calcular el total de ventas dentro del rango
+        total_rango = ventas_filtradas.aggregate(Sum('total'))['total__sum'] or 0
 
         # Obtener el total de ventas del mes actual
         mes_actual = timezone.now().month
 
-        total_mes = Venta.objects.filter(
-            Q(fecha__month=mes_actual) &  (Q(estado=1) | Q(estado=2) | Q(estado=3))
-        ).aggregate(Sum('total'))['total__sum'] or 0
-        
-        context['total_mes'] = total_mes
-
         # Obtener el nombre del mes actual
         mes = calendar.month_name[mes_actual]
         context['mes'] = mes
+
+        context['lista_ventas'] = lista_ventas
+
+        context['venta_list'] = ventas_filtradas
+
+        context['total_rango'] = total_rango
 
         # Agregar cualquier otro contexto adicional que necesites aquí
         return context
@@ -179,32 +193,37 @@ def dashboard(request):
 
     lista_ventas = DetalleVenta.objects.all().order_by('-id')
 
+    
+    desde = request.GET.get('desde')  # Obtener el valor desde el parámetro GET
+    hasta = request.GET.get('hasta')  # Obtener el valor hasta el parámetro GET
 
-    # Obtener el total de ventas del día actual
-    total_hoy = Venta.objects.filter(
-        Q(fecha__date=timezone.now().date()) & (Q(estado=1) | Q(estado=2) | Q(estado=3))
-    ).aggregate(Sum('total'))['total__sum'] or 0
+    if desde and hasta:
+        # Filtrar las ventas dentro del rango de fechas especificado
+        ventas_filtradas = Venta.objects.filter(
+            fecha__date__range=[desde, hasta],  # Utilizar el rango de fechas
+            estado__in=[1, 2, 3]  # Filtrar por estados específicos
+        )
+        # Filtrar los detalles de venta relacionados con las ventas filtradas
+        lista_ventas = DetalleVenta.objects.filter(venta__in=ventas_filtradas)
 
-
+    else:
+        ventas_filtradas = Venta.objects.all()
+    
+    # Calcular el total de ventas dentro del rango
+    total_rango = ventas_filtradas.aggregate(Sum('total'))['total__sum'] or 0
 
     # Obtener el total de ventas del mes actual
     mes_actual = timezone.now().month
 
-    total_mes = Venta.objects.filter(
-        Q(fecha__month=mes_actual) &  (Q(estado=1) | Q(estado=2) | Q(estado=3))
-    ).aggregate(Sum('total'))['total__sum'] or 0
-    
     # Obtener el nombre del mes actual
     mes = calendar.month_name[mes_actual]
 
     context = {
         'lista_ventas': lista_ventas, 
         'mes':mes,
-        'total_hoy':total_hoy,
-        'total_mes':total_mes,
+        'total':total_rango,
         }
     return render(request, 'home.html', context)
-
 
 
 @login_required(login_url='/admin/login/')
@@ -287,7 +306,13 @@ def carrito(request):
                   {'lista_detalle': lista_detalle, 'venta': venta, 'data': data,'lista_clientes':lista_clientes,})
 
 
+from django.contrib.auth.decorators import user_passes_test
+
+def is_superuser(user):
+    return user.is_superuser
+
 @login_required(login_url='/admin/login/')
+@user_passes_test(is_superuser, login_url='/')
 def balance(request):
 
 
@@ -300,19 +325,29 @@ def balance(request):
     hora_inicio_dia = datetime.combine(fecha_actual, time.min)
     hora_fin_dia = datetime.combine(fecha_actual, time.max)
 
-    valuacion_inventario = Producto.objects.annotate(
-        valuacion=ExpressionWrapper(F('en_stock') * F('costo'), output_field=DecimalField())
-    ).aggregate(total_valuacion=Sum('valuacion'))['total_valuacion']
-
     # Obtener el total de ventas del día actual desde las 00:00 hasta las 23:59
     ventas_hoy = Venta.objects.filter(
         fecha__range=(hora_inicio_dia, hora_fin_dia)
     ).aggregate(ventas_hoy=Sum('total'))['ventas_hoy']
 
+    valuacion_inventario = Producto.objects.annotate(
+        valuacion=ExpressionWrapper(F('en_stock') * F('costo'), output_field=DecimalField())
+    ).aggregate(total_valuacion=Sum('valuacion'))['total_valuacion']
+
     # Obtener el total de ventas del mes actual
     ventas_mes_actual = Venta.objects.filter(
         fecha__year=fecha_actual.year, fecha__month=fecha_actual.month
     ).aggregate(total_ventas_mes_actual=Sum('total'))['total_ventas_mes_actual']
+
+    # Obtener el total de ventas del mes actual
+    gastos_mes_actual = Gasto.objects.filter(
+        fecha__year=fecha_actual.year, fecha__month=fecha_actual.month
+    ).aggregate(total_gastos_mes_actual=Sum('total'))['total_gastos_mes_actual']
+
+    # Obtener el total de ventas del mes actual
+    retiros_mes_actual = Retiro.objects.filter(
+        fecha__year=fecha_actual.year, fecha__month=fecha_actual.month
+    ).aggregate(total_retiros_mes_actual=Sum('total'))['total_retiros_mes_actual']
 
     # Obtener el total de compras del mes actual (asumiendo que también tienes un modelo 'Compra' similar a 'Venta')
     compras_mes_actual = Compra.objects.filter(
@@ -320,10 +355,13 @@ def balance(request):
     ).aggregate(total_compras_mes_actual=Sum('total'))['total_compras_mes_actual']
 
 
+
+
+
     # Obtener el top 10 de productos más vendidos
     top_ventas = DetalleVenta.objects.values('producto__descripcion', 'producto__nombre').annotate(
-        total_ventas=Sum('cantidad'), nombre_largo=F('producto__nombre') + ' ' + F('producto__descripcion')
-    ).order_by('-total_ventas')[:10]
+        total_ventas=Sum('cantidad')).order_by('-total_ventas')[:10]
+
 
     fecha_actual = date.today()
         # Obtener la fecha actual menos 30 días
@@ -348,6 +386,9 @@ def balance(request):
         'ventas_hoy': ventas_hoy or 0,
         'ventas_mes_actual': ventas_mes_actual or 0,
         'compras_mes_actual': compras_mes_actual or 0,
+        'gastos_mes_actual': gastos_mes_actual or 0,
+        'retiros_mes_actual': retiros_mes_actual or 0,
+
         'top_ventas':top_ventas,
         'ventas_30_dias':ventas_30_dias,
         'ventas_por_dia':ventas_por_dia,

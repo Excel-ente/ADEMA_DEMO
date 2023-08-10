@@ -18,6 +18,8 @@ class Compra(models.Model):
         super().clean()
     
     def save(self, *args, **kwargs):
+
+        self.total = self.cantidad * self.costo
         if self.estado == True:
             if self.costo > 0:
                 self.total = self.cantidad * self.costo

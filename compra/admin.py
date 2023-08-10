@@ -41,10 +41,10 @@ class CompraAdmin(admin.ModelAdmin):
     def ingresar_compra(self, request, queryset):
         
         for compra in queryset:
-            if not compra.estado:  # Verifica que el estado sea False antes de cambiarlo
+            if  compra.estado == False:  # Verifica que el estado sea False antes de cambiarlo
                 compra.estado = True
                 compra.save()   
-  
+            
     ingresar_compra.short_description = "Ingresar mercaderia"  # Descripción de la acción
 
     actions = [ingresar_compra]  # Asociar la acción personalizada a la clase CompraAdmin

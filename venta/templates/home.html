@@ -2,44 +2,41 @@
 
 {% block content %}
 
-<div class="container">
+<div class="container" style="min-height: 100vh;">
     <div class="" style="text-align: start;">
         <h1 class="text-light p-3" style="margin-top: 70px;"><b></b></h1>
     </div>
     <div class="card p-3">
         <div class="card-body">
-        {% if data.eliminado %}
-            <p class="text-success text-center">
-                {{ data.eliminado }}
-            </p>
-        {% endif %}
-            
             <div class="row justify-content-center">
-                <div class="div col-4">
+                <div class="col-8">
                     <div class="card" style="border: none;">
                         <div class="card-body text-center">
-                            <div>
-                                <h4 class="text-primary"><label for="">Buscar por fecha</label></h4>
-                            </div>
-                            <div>
-                                <input type="date" id="fecha" class="form-control">
-                            </div>
+                            <form method="GET" action="">
+                                <div class="row">
+                                    <div class="col-4">
+                                        <label for="" class="text-primary"><b>Desde</b></label>
+                                        <input type="date" name="desde" class="form-control" value="{{ desde|date:'Y-m-d' }}">
+                                    </div>
+                                    <div class="col-4">
+                                        <label for="" class="text-primary"><b>Hasta</b></label>
+                                        <input type="date" name="hasta" class="form-control" value="{{ hasta|date:'Y-m-d'}}">
+                                    </div>
+                                    <div class="col-4">
+                                        <button type="submit" class="btn btn-primary">Filtrar</button>
+
+                                    </div>
+                                </div>
+                            </form>
                         </div>
                     </div>
                 </div>
+
                 <div class="div col-4">
                     <div class="card" style="border: none;">
                         <div class="card-body">
-                            <h4 class="text-primary">Total hoy</h4>
-                            <h4 class="text-danger"><b>$ {{ total_hoy }}</b></h4>
-                        </div>
-                    </div>
-                </div>
-                <div class="div col-4">
-                    <div class="card" style="border: none;">
-                        <div class="card-body">
-                            <h4 class="text-primary">Total Mes ({{ mes }})</h4>
-                            <h4 class="text-danger"><b>$ {{ total_mes }}</b></h4>
+                            <h4 class="text-primary">Total</h4>
+                            <h4 class="text-danger"><b>$ {{ total }}</b></h4>
                         </div>
                     </div>
                 </div>
@@ -69,28 +66,6 @@
 
                     </tbody>
                 </table>
-                <div class="mt-4">
-                    {% if lista_detalle %}
-                        <form action="" method="post">
-                            {% csrf_token %}
-                            <input type="hidden" name="id_venta" value="{{ venta.id }}">
-
-                            {% if venta.estado == venta.ESTADO_CREADA %}
-                                <a class="btn btn-danger" href="{% url 'venta:anular' venta.id %}">Cancelar venta</a>
-                                <input name="pagar" type="submit" class="btn btn-success btn-lg" value="Pagar venta">
-                            {% endif %}
-                            {% if venta.estado == venta.ESTADO_PAGADA %}
-                                <a class="btn btn-danger" href="{% url 'venta:anular' venta.id %}">Anular venta</a> |
-                                <input name="finalizar" type="submit" class="btn btn-success btn-lg" value="Finalizar venta"> |
-                                <a class="btn btn-info" href="{% url 'venta:facturar' venta.id %}">Facturar venta</a>
-                            {% endif %}
-                            {% if venta.estado == venta.ESTADO_FACTURADA %}
-                                <a class="btn btn-danger" href="{% url 'venta:anular' venta.id %}">Anular venta</a>
-                                <input name="finalizar" type="submit" class="btn btn-success btn-lg" value="Finalizar venta">
-                            {% endif %}
-                        </form>
-                    {% endif %}
-
                 </div>
             </div>
         </div>

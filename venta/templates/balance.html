@@ -19,61 +19,89 @@
     </div>
     <div class="card-body">
         <div class="row">
-            <div class="col-3">                
-                <div class="card h-100 border-primary">
+            <div class="col-lg-2 col-md-4 col-sm-6">                
+                <div class="card border-primary">
                     <div class="card-header bg-primary">
-                        <h5>
-                            $ Valuacion inventario
-                        </h5>
+                        <b>
+                            $ inventario
+                        </b>
                     </div>
                     <div class="card-body">
-                        <div class="h4 mb-0 font-weight-bold text-danger">
+                        <div class="h5 mb-0 font-weight-bold text-danger">
                             $ {{ valuacion_inventario|intcomma }}
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="col-3">                
-                <div class="card  h-100 border-primary">
+            <div class="col-lg-2 col-md-4 col-sm-6">                
+                <div class="card border-primary">
                     <div class="card-header bg-primary">
-                        <h5>
-                            $ ventas hoy
-                        </h5>
+                        <b>
+                            $ ventas del dia
+                        </b>
                     </div>
                     <div class="card-body">
-                        <div class="h4 mb-0 font-weight-bold text-danger">
+                        <div class="h5 mb-0 font-weight-bold text-danger">
                             $ {{ ventas_hoy|intcomma }}
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="col-3">                
-                <div class="card  h-100 border-primary">
+            <div class="col-lg-2 col-md-4 col-sm-6">                |
+                <div class="card border-primary">
                     <div class="card-header bg-primary">
-                        <h5>
+                        <b>
                             $ compras Mes actual
-                        </h5>
+                        </b>
                     </div>
                     <div class="card-body">
-                        <div class="h4 mb-0 font-weight-bold text-danger">
+                        <div class="h5 mb-0 font-weight-bold text-danger">
                             $ {{ compras_mes_actual|intcomma }}
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="col-3">                
-                <div class="card  h-100 border-primary">
+            <div class="col-lg-2 col-md-4 col-sm-6">                
+                <div class="card  border-primary">
                     <div class="card-header bg-primary">
-                        <h5>
+                        <b>
                             $ ventas Mes actual
-                        </h5>
+                        </b>
                     </div>
                     <div class="card-body">
-                        <div class="h4 mb-0 font-weight-bold text-danger">
+                        <div class="h5 mb-0 font-weight-bold text-danger">
                             $ {{ ventas_mes_actual|intcomma }}
                         </div>
                     </div>
                 </div>
+            </div>
+            <div class="col-lg-2 col-md-4 col-sm-6">                
+              <div class="card  border-primary">
+                  <div class="card-header bg-primary">
+                      <b>
+                          $ Gastos Mes actual
+                      </b>
+                  </div>
+                  <div class="card-body">
+                      <div class="h5 mb-0 font-weight-bold text-danger">
+                          $ {{ gastos_mes_actual|intcomma }}
+                      </div>
+                  </div>
+              </div>
+            </div>
+            <div class="col-lg-2 col-md-4 col-sm-6">                
+              <div class="card border-primary">
+                <div class="card-header bg-primary">
+                    <b>
+                        $ Retiros Mes actual
+                    </b>
+                </div>
+                <div class="card-body">
+                    <div class="h5 mb-0 font-weight-bold text-danger">
+                        $ {{ retiros_mes_actual|intcomma }}
+                    </div>
+                </div>
+              </div>
             </div>
         </div>
         <hr>
@@ -93,7 +121,7 @@
                                 {% for venta in top_ventas %}
                                 <tr>
                                     <td>{{ venta.producto__nombre }} {{ venta.producto__nombre }}</td>
-                                    <td>${{ venta.total_ventas|intcomma }}</td>
+                                    <td>{{ venta.total_ventas|intcomma }}</td>
                                 </tr>
                                 {% endfor %}
                             </tbody>
@@ -117,15 +145,14 @@
   </div>
 </div>
 
-    
-// Crear grafico de barras de gastos pagados ------------------------------------------
+
 <script>
 
   const ctx = document.getElementById('myChart');
 
   new Chart(ctx, {
   data: {
-    labels: [-20,-19,-18,-17,-16,-15,-14,-13,-12,-11,-10,-9,-8,-7,-6,-5,-4,-3,-2,-1],
+    labels: [{% for venta in ventas_por_dia %} {{ venta.fecha__day }}, {% endfor %}],
     datasets: [
     {
       type: 'line',

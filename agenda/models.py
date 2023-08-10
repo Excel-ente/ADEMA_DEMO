@@ -56,3 +56,29 @@ class Viaje(models.Model):
             return f'{self.chofer} | llega: 📆 {formatear_fecha(self.fecha_llegada)}'
         else:
             return f'{self.chofer} | llegó: 📆 {formatear_fecha(self.fecha_llegada)}'
+        
+
+class TipoGasto(models.Model):
+    descripcion = models.CharField(max_length=255,unique=True,blank=False,null=False)
+
+    def __str__(self):
+        return self.descripcion
+    
+class Gasto(models.Model):
+    fecha = models.DateField(blank=False,null=True)
+    categoria = models.ForeignKey(TipoGasto,on_delete=models.SET_NULL,blank=False,null=True)
+    descripcion = models.CharField(max_length=255, null=False, blank=False)
+    total = models.DecimalField(max_digits=20,decimal_places=2,blank=False,null=False)
+
+    def __str__(self):
+        msg = f'{self.categoria} | {self.descripcion} | ${self.total}'
+        return msg
+    
+class Retiro(models.Model):
+    fecha = models.DateField(blank=False,null=True)
+    descripcion = models.CharField(max_length=255, null=False, blank=False)
+    total = models.DecimalField(max_digits=20,decimal_places=2,blank=False,null=False)
+
+    def __str__(self):
+        msg = f'{self.fecha} | {self.descripcion} | ${self.total}'
+        return msg

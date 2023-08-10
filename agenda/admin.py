@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Cliente,Vendedor,Viaje
+from .models import Cliente,Vendedor,Viaje,Gasto,TipoGasto,Retiro
 # Register your models here.
 admin.site.register(Cliente)
 admin.site.register(Vendedor)
@@ -18,3 +18,15 @@ class ViajeAdmin(admin.ModelAdmin):
             return "🛻 En viaje"
         else:
             return "🟢 Controlado"
+        
+@admin.register(Retiro)
+class RetiroAdmin(admin.ModelAdmin):
+    list_display = ('fecha','descripcion','total')
+
+@admin.register(Gasto)
+class GastoAdmin(admin.ModelAdmin):
+    list_display = ('categoria','descripcion','total')
+
+@admin.register(TipoGasto)
+class TipoGastoAdmin(admin.ModelAdmin):
+    list_display = ('descripcion',)

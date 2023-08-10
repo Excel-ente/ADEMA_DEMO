@@ -9,7 +9,6 @@ def compras_list(request):
 
     compra_list = Compra.objects.all()
 
-    print(compra_list)
     
     context = {'compra_list': compra_list}
 
