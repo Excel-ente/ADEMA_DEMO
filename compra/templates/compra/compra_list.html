@@ -1,13 +1,14 @@
 {% extends 'core/base.html' %}
+{% load humanize %}
 {% block content %}
 <div class="container" style="min-height: 100vh;">
     <div class="" style="text-align: start;">
         <h1 class="text-light p-3" style="margin-top: 70px;"><b></b></h1>
     </div>
     
-    <div class="card p-3">
+    <div class="card p-3" style="min-height: 80vh;">
         <div class="mt-2 d-flex">
-            <h3 class="text-primary p-2">Listado de Compras2</h3>
+            <h3 class="text-primary p-2">Listado de Compras</h3>
         </div>
         
         <hr class="text-secondary" style="height: 15px;">
@@ -22,13 +23,13 @@
             </tr>
             </thead>
             <tbody>
-            {% for compra in compra_list1 %}
+            {% for compra in compra_list %}
                 <tr>
                     <td>{{ compra.fecha }}</td>
                     <td>{{ compra.producto.nombre }}</td>
                     <td>{{ compra.producto.descripcion }}</td>
-                    <td><b class="text-success">{{ compra.cantidad|floatformat:2 }}</b></td>
-                    <td>$ {{ compra.viaje }}</td>
+                    <td><b class="text-success">{{ compra.cantidad|floatformat:2|intcomma }}</b></td>
+                    <td> {{ compra.viaje }}</td>
                 </tr>
             {% endfor %}
             </tbody>
