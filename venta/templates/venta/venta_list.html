@@ -1,5 +1,5 @@
 {% extends 'core/base.html' %}
-
+{% load humanize %}
 {% block content %}
 
 <div class="container">
@@ -35,7 +35,7 @@
                 <div class="card" style="border: none;">
                     <div class="card-body">
                         <h4 class="text-primary">Total</h4>
-                        <h4 class="text-danger"><b>$ {{ total_rango }}</b></h4>
+                        <h4 class="text-danger"><b>$ {{ total_rango|intcomma }}</b></h4>
                     </div>
                 </div>
             </div>
