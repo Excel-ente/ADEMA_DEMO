@@ -10,6 +10,7 @@ from django.shortcuts import render, get_object_or_404
 from decimal import Decimal
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse_lazy
+from django.views import View
 from django.views.generic import ListView, UpdateView, DetailView
 from django.utils.decorators import method_decorator
 from venta.forms import VentaForm, VentaFacturaForm
@@ -25,6 +26,23 @@ from django.template.loader import get_template
 from xhtml2pdf import pisa
 from reportlab.lib.pagesizes import letter
 
+class PrintTicketPDFView(View):
+    def get(self, request, venta_id):
+        venta = Venta.objects.get(id=venta_id)
+        template_path = 'ticket.html'
+        context = {'venta': venta}
+        response = HttpResponse(content_type='application/pdf')
+        response['Content-Disposition'] = f'filename="ticket_venta_{venta_id}.pdf"'
+        template = get_template(template_path)
+        html = template.render(context)
+
+        pisa_status = pisa.CreatePDF(html, dest=response)
+
+        if pisa_status.err:
+            return HttpResponse('Error al generar el PDF', status=500)
+
+        return response
+    
 def imprimir_ticket(request, venta_id):
     # Obtén la venta actual
     venta = obtener_venta_actual()
