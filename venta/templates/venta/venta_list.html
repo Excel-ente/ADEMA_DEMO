@@ -59,8 +59,8 @@
                                 <tr>
                                     <td class="text-primary"><b>Venta #{{ venta.pk }}</b></td>
                                     <td>{{ venta.get_date }}</td>
-                                    <td>{{ venta.get_cart_items }}</td>
-                                    <td>$ {{ venta.get_cart_total }}</td>
+                                    <td>{{ venta.get_cart_items|floatformat:0 }}</td>
+                                    <td>$ {{ venta.get_cart_total|intcomma }}</td>
                                     <td>
                                         <a class="btn btn-danger" style="margin: 15px;"
                                             href="{% url 'venta:anular' venta.id %}">Anular</a>
