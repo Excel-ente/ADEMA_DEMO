@@ -88,7 +88,7 @@ def imprimir_ticket(request, venta_id):
 @method_decorator(login_required, name='dispatch')
 class VentaList(ListView):
     model = Venta
-    queryset = Venta.objects.all().order_by('-fecha')
+    queryset = Venta.objects.all().order_by('fecha')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -251,7 +251,7 @@ def dashboard(request):
 @login_required(login_url='/admin/login/')
 def compra(request):
 
-    compra_list = Compra.objects.all().order_by('-fecha')
+    compra_list = Compra.objects.all().order_by('fecha')
 
     context = {'compra_list': compra_list}
 
@@ -350,8 +350,8 @@ def is_superuser(user):
 def balance(request):
 
 
-    ventas = Venta.objects.all().order_by('-fecha')
-    compras = Compra.objects.all().order_by('-fecha')
+    ventas = Venta.objects.all().order_by('fecha')
+    compras = Compra.objects.all().order_by('fecha')
 
     #detalleVentas = DetalleVenta.objects.all()
     
