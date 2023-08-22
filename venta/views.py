@@ -251,7 +251,7 @@ def dashboard(request):
 @login_required(login_url='/admin/login/')
 def compra(request):
 
-    compra_list = Compra.objects.all().order_by('|fecha')
+    compra_list = Compra.objects.all().order_by('fecha')
 
     context = {'compra_list': compra_list}
 
