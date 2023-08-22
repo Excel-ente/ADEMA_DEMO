@@ -193,14 +193,16 @@
                             {% if venta.estado == venta.ESTADO_PAGADA %}
                                   <!-- <a class="btn btn-danger" href="{% url 'venta:anular' venta.id %}">Anular venta</a>--> |
                                 <input name="finalizar" type="submit" class="btn btn-success btn-lg" value="Nueva venta"> |
-                                <a id="btnImprimir" onclick="imprimirTicket()" class="btn btn-primary" href="{% url 'venta:imprimir' venta.id %}">Imprimir</a>
 
+                                <a class="btn btn-primary" style="margin: 15px;"
+                                            href="{% url 'venta:imprimir_ticket' venta.id %}">Imprimir</a>
 
                             {% endif %}
                             {% if venta.estado == venta.ESTADO_FACTURADA %}
                                <!-- <a class="btn btn-danger" href="{% url 'venta:anular' venta.id %}">Anular venta</a>--> |
                                 <input name="finalizar" type="submit" class="btn btn-success btn-lg" value="Nueva venta">
                             {% endif %}
+                            
                         </form>
                     {% endif %}
         

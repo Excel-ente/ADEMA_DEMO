@@ -26,7 +26,7 @@ def formatear_fecha(fecha):
 class Cliente(models.Model):
     codigo = models.CharField(unique=True,max_length=200, null=True, blank=True)
     nombre = models.CharField(unique=True,verbose_name='Vendedor',max_length=200, null=True, blank=True)
-    nit = models.CharField(max_length=20,default=1,blank=True,null=True)
+    nit = models.CharField(verbose_name="",max_length=20,default=1,blank=True,null=True)
     direccion = models.CharField(max_length=200,blank=True,null=True)
 
     
