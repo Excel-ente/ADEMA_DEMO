@@ -2,18 +2,24 @@ from django.contrib import admin
 
 # Register your models here.
 from venta.models import Venta, DetalleVenta
-
-
+from import_export.admin import ImportExportModelAdmin
 
 @admin.register(DetalleVenta)
-class DetalleVentaAdmin(admin.ModelAdmin):
-    list_display = ('fecha','venta','producto','cantidad','precio_unitario','total')
+class DetalleVentaAdmin(ImportExportModelAdmin):
+    list_display = ('fecha','venta','producto','cantidad','moneda','precio_unitario','total')
     list_filter = ('fecha','venta','producto',)
     exclude =('precio',)
-    readonly_fields =  ('fecha','venta','producto','cantidad','precio_unitario','total',)
+    readonly_fields =  ('fecha','venta','producto','cantidad','moneda','precio_unitario','total',)
 
     def precio_unitario(self, obj):
         return "💲{:,.2f}".format(obj.precio)
+
+    def dolar_unitario(self, obj):
+        return "💲{:,.2f}".format(obj.precio_usd)
+
+    def boliviano_unitario(self, obj):
+        return "💲{:,.2f}".format(obj.precio_bs)
+
 
     def total(self, obj):
         return "💲{:,.2f}".format(obj.get_total)

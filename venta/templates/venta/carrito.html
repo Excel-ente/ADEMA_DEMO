@@ -6,31 +6,6 @@
 
 
 
-<!-- Modal de clientes -->
-<div class="modal fade" id="modalClientes" tabindex="-1" role="dialog" aria-labelledby="modalClientesLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-scrollable" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title text-primary" id="modalClientesLabel">Seleccionar cliente</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <!-- Aquí colocamos la lista de clientes -->
-                <ul class="list-group">
-                    {% for cliente in lista_clientes %}
-                        <li class="list-group-item">
-                            <a href="#" class="select-cliente" data-id="{{ cliente.id }}" data-nombre="{{ cliente.nombre }}">
-                                {{ cliente.nombre }}
-                            </a>
-                        </li>
-                    {% endfor %}
-                </ul>
-            </div>
-        </div>
-    </div>
-</div>
 
 
 <div class="container">
@@ -53,11 +28,42 @@
                     </div>
 
                     <div class="row mt-3">
-                        <h2 class="text-danger">Total : $ {{ venta.get_cart_total|intcomma }}</h2>
+                        <h2 class="text-danger"><b class="text-dark">Total Pesos :</b> $ {{ venta.get_cart_total|intcomma }}</h2>
+                        <h5 class="text-danger"><b class="text-dark">Total Dolares :</b> $ {{ venta.get_cart_total_dolares|intcomma }}</h5>
+                        <h5 class="text-danger"><b class="text-dark">Total Bolivianos :</b> $ {{ venta.get_cart_total_bolivianos|intcomma }}</h5>
                     </div>
     
                     <div class="row mt-3">
-                        <h5 class="text-primary">Cliente : <b class="text-dark">{{ venta.cliente }}</b></h5>
+                        <h5 class="text-dark">Cliente Seleccionado: 
+                            <b class="text-primary">
+                            {{ venta.cliente }}
+                            </b>
+                        </h5>
+                        <!-- Modal de clientes -->
+                        <div class="modal fade" id="modalClientes" tabindex="-1" role="dialog" aria-labelledby="modalClientesLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-scrollable" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title text-primary" id="modalClientesLabel">Seleccionar cliente</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <!-- Aquí colocamos la lista de clientes -->
+                                        <ul class="list-group">
+                                            {% for cliente in lista_clientes %}
+                                                <li class="list-group-item">
+                                                    <a href="#" class="select-cliente" data-id="{{ cliente.id }}" data-nombre="{{ cliente.nombre }}">
+                                                        {{ cliente.nombre }}
+                                                    </a>
+                                                </li>
+                                            {% endfor %}
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
 
@@ -98,8 +104,10 @@
                             <th scope="col">Cantidad</th>
                             <th scope="col">Precio P/U</th>
                             <th scope="col">Total</th>
+                            <th scope="col">Moneda</th>
                             {% if venta.estado == venta.ESTADO_CREADA %}
-                                <th class="text-center" scope="col">Remover</th>
+                                <th class="text-center" scope="col"></th>
+                                <th class="text-center" scope="col"></th>
                             {% endif %}
                         </tr>
                         </thead>
@@ -111,14 +119,56 @@
                                 <td>{{ detalle.cantidad|intcomma }}</td>
                                 <td>$ {{ detalle.precio|intcomma }}</td>
                                 <td>$ {{ detalle.get_total|intcomma }}</td>
+                                <td>{{ detalle.moneda }}</td>
                                 {% if venta.estado == venta.ESTADO_CREADA %}
+                                    <td>
+                                        <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#modalModificar{{ detalle.id }}" data-detalle-id="{{ detalle.id }}">
+                                            Editar
+                                        </button>
+                                        <!-- Modal de modificación -->
+                                        <div class="modal fade" id="modalModificar{{ detalle.id }}" tabindex="-1" role="dialog" aria-labelledby="modalModificarLabel{{ detalle.id }}" aria-hidden="true">
+                                            <div class="modal-dialog modal-dialog-centered" role="document">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title text-primary" id="modalModificarLabel{{ detalle.id }}">Modificar item de carrito </h5>
+                                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                            <span aria-hidden="true">&times;</span>
+                                                        </button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <form method="post">
+                                                            <h5>Producto: <b class="text-danger">{{ detalle.producto.nombre }}</b></h5>
+                                                            <h5>Descripcion: <b class="text-danger">{{ detalle.producto.descripcion }}</b></h5>
+                                                            <h5>Cantidad Actual: <b class="text-danger">{{ detalle.cantidad }}</b></h5>
+                                                            <h5>Precio Actual: <b class="text-danger">{{ detalle.precio }}</b></h5>
+                                                            <h5>Moneda: <b class="text-danger">{{ detalle.moneda }}</b></h5>
+                                                            <br>
+                                                            {% csrf_token %}
+                                                            <input type="hidden" name="detalle_id" value="{{ detalle.id }}">
+                                                            <div class="form-group">
+                                                                <label for="nueva_cantidad">Nueva cantidad:</label>
+                                                                <input type="number" name="nueva_cantidad" class="form-control" value="{{ detalle.cantidad }}">
+                                                            </div>
+                                                            <div class="form-group text-center">
+                                                                <label for="nuevo_precio">Nuevo precio:</label>
+                                                                <input type="number" name="nuevo_precio" class="form-control" value="{{ detalle.precio }}">
+                                                            </div>
+                                                            <br>
+                                                            <button type="submit" class="btn btn-primary">Guardar cambios</button>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </td>
                                     <td class="text-center">
                                         <form id="detalle{{ detalle.id }}" action="" method="post">
                                             {% csrf_token %}
-                                            <input type="hidden" name="detalle_id" id="detalle_id" value="{{ detalle.id }}">
+                                            <input type="hidden" name="detalle_id_delete" id="detalle_id_delete" value="{{ detalle.id }}">
                                             <button name="btnquitardecarrito{{ detalle.id }}" type="submit"
-                                                    class="btn btn-danger btn-circle">
-                                                <i class="fa fa-minus btn-add"></i>
+                                                    class="btn btn-danger btn-sm">
+                                                    Eliminar
                                             </button>
                                         </form>
                                     </td>
@@ -178,6 +228,7 @@
             $('#id_cliente').val(clienteId); // Agregamos el ID del cliente al campo oculto
             $('#modalClientes').modal('hide'); // Cerramos el modal
         });
+
     });
 </script>
 {% endblock %}

@@ -19,12 +19,13 @@ from agenda.models import Gasto,Retiro
 from compra.models import Compra
 from producto.models import Producto
 from agenda.models import Cliente
-from django.utils import timezone
+
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.template.loader import get_template
 from xhtml2pdf import pisa
 from reportlab.lib.pagesizes import letter
+from pytz import timezone
 
 class PrintTicketPDFView(View):
     def get(self, request, venta_id):
@@ -77,11 +78,11 @@ def imprimir_ticket(request, venta_id):
 
 
 # Función para cargar recursos externos cuando se genera el PDF
-def fetch_resources(uri, rel):
-    from django.conf import settings
-
-    path = static(uri.replace(settings.STATIC_URL, ""))
-    return path
+#def fetch_resources(uri, rel):
+ #   from django.conf import settings
+#
+ #   path = static(uri.replace(settings.STATIC_URL, ""))
+  #  return path
 
 
 @method_decorator(login_required, name='dispatch')
@@ -114,10 +115,11 @@ class VentaList(ListView):
         total_rango = ventas_filtradas.aggregate(Sum('total'))['total__sum'] or 0
 
         # Obtener el total de ventas del mes actual
-        mes_actual = timezone.now().month
+        argentina_timezone = timezone('America/Argentina/Buenos_Aires')
+        fecha_actual = datetime.now(argentina_timezone)
 
         # Obtener el nombre del mes actual
-        mes = calendar.month_name[mes_actual]
+        mes = calendar.month_name[fecha_actual.month]
         context['mes'] = mes
 
         context['lista_ventas'] = lista_ventas
@@ -211,7 +213,6 @@ def dashboard(request):
 
     lista_ventas = DetalleVenta.objects.all().order_by('-id')
 
-    
     desde = request.GET.get('desde')  # Obtener el valor desde el parámetro GET
     hasta = request.GET.get('hasta')  # Obtener el valor hasta el parámetro GET
 
@@ -230,8 +231,12 @@ def dashboard(request):
     # Calcular el total de ventas dentro del rango
     total_rango = ventas_filtradas.aggregate(Sum('total'))['total__sum'] or 0
 
-    # Obtener el total de ventas del mes actual
-    mes_actual = timezone.now().month
+    # Obtener la fecha actual en Argentina
+    argentina_timezone = timezone('America/Argentina/Buenos_Aires')
+    fecha_actual = datetime.now(argentina_timezone)
+
+    # Obtener el mes actual
+    mes_actual = fecha_actual.month
 
     # Obtener el nombre del mes actual
     mes = calendar.month_name[mes_actual]
@@ -243,7 +248,6 @@ def dashboard(request):
         }
     return render(request, 'home.html', context)
 
-
 @login_required(login_url='/admin/login/')
 def compra(request):
 
@@ -252,7 +256,6 @@ def compra(request):
     context = {'compra_list': compra_list}
 
     return render(request, 'compra_list.html', context)
-
 
 @login_required(login_url='/admin/login/')
 def product_list(request):
@@ -278,8 +281,9 @@ def product_list(request):
         else:
             producto = get_object_or_404(Producto, id=request.POST['id_producto'])
             cantidad = Decimal(request.POST['cantidad'])
+            moneda = request.POST['moneda']
 
-            data['status'] = agregar_producto_a_carrito(venta, cantidad, producto)
+            data['status'] = agregar_producto_a_carrito(venta, cantidad, producto, moneda)
 
     context = {'producto_list': lista_productos, 'data': data, 'venta': venta}
 
@@ -315,9 +319,21 @@ def carrito(request):
             lista_detalle = DetalleVenta.objects.filter(venta=new_venta)
             return render(request, 'venta/carrito.html',
                           {'lista_detalle': lista_detalle, 'venta': new_venta, 'data': data})
+        
+        elif 'detalle_id' in request.POST:
+            nueva_cantidad = request.POST['nueva_cantidad']
+            nuevo_precio = request.POST['nuevo_precio']
 
-        elif request.POST['detalle_id']:
-            nombre_producto_eliminado = eliminar_de_carrito(request.POST['detalle_id'])
+            detalle_id = request.POST['detalle_id']
+            print(detalle_id)
+            detalle_venta = DetalleVenta.objects.get(id=detalle_id)
+            detalle_venta.cantidad = nueva_cantidad
+            detalle_venta.precio = nuevo_precio
+            #detalle_venta.total = nuevo_precio * nueva_cantidad
+            detalle_venta.save()
+
+        elif request.POST['detalle_id_delete']:
+            nombre_producto_eliminado = eliminar_de_carrito(request.POST['detalle_id_delete'])
             data['eliminado'] = 'Se ha eliminado del carrito: ' + nombre_producto_eliminado + ' de manera exitosa'
        
     return render(request, 'venta/carrito.html',
@@ -336,26 +352,47 @@ def balance(request):
 
     ventas = Venta.objects.all().order_by('-fecha')
     compras = Compra.objects.all().order_by('-fecha')
-    productos = Producto.objects.all()
 
-    # Obtener la fecha actual sin la hora
-    fecha_actual = date.today()
-    hora_inicio_dia = datetime.combine(fecha_actual, time.min)
-    hora_fin_dia = datetime.combine(fecha_actual, time.max)
+    #detalleVentas = DetalleVenta.objects.all()
+    
+    # Obtener el top 10 de productos más vendidos
+    top_ventas = DetalleVenta.objects.values('producto__descripcion', 'producto__nombre').annotate(
+        total_ventas=Sum('cantidad')).order_by('-total_ventas')[:10]
 
-    # Obtener el total de ventas del día actual desde las 00:00 hasta las 23:59
-    ventas_hoy = Venta.objects.filter(
-        fecha__range=(hora_inicio_dia, hora_fin_dia)
-    ).aggregate(ventas_hoy=Sum('total'))['ventas_hoy']
+
+    argentina_timezone = timezone('America/Argentina/Buenos_Aires')
+    fecha_actual = datetime.now(argentina_timezone).date()
+
+    # Obtener la hora de inicio y fin del día en Argentina
+    hora_inicio_dia = argentina_timezone.localize(datetime.combine(fecha_actual, time.min))
+    hora_fin_dia = argentina_timezone.localize(datetime.combine(fecha_actual, time.max))
+
+    # Obtener todas las ventas del día actual
+    ventas_hoy = DetalleVenta.objects.filter(fecha__range=(hora_inicio_dia, hora_fin_dia))
+
+    # Calcular los totales de ventas por moneda
+    ventas_hoy_pesos = sum(item.get_total for item in ventas_hoy.filter(moneda='Pesos'))
+    ventas_hoy_usd = sum(item.get_total for item in ventas_hoy.filter(moneda='Dolares'))
+    ventas_hoy_bs = sum(item.get_total for item in ventas_hoy.filter(moneda='Bolivianos'))
+
+    # Obtener todas las ventas del día actual
+
+    primer_dia_mes = fecha_actual.replace(day=1)
+    ultimo_dia_mes = primer_dia_mes.replace(day=28) + timedelta(days=4) - timedelta(days=1)
+
+
+    # Obtener todas las ventas del mes actual
+    ventas_mes = DetalleVenta.objects.filter(fecha__range=(primer_dia_mes, ultimo_dia_mes))
+
+    ventas_mes_pesos = sum(item.get_total for item in ventas_mes.filter(moneda='Pesos'))
+    ventas_mes_usd = sum(item.get_total for item in ventas_mes.filter(moneda='Dolares'))
+    ventas_mes_bs = sum(item.get_total for item in ventas_mes.filter(moneda='Bolivianos'))
+
 
     valuacion_inventario = Producto.objects.annotate(
         valuacion=ExpressionWrapper(F('en_stock') * F('costo'), output_field=DecimalField())
     ).aggregate(total_valuacion=Sum('valuacion'))['total_valuacion']
 
-    # Obtener el total de ventas del mes actual
-    ventas_mes_actual = Venta.objects.filter(
-        fecha__year=fecha_actual.year, fecha__month=fecha_actual.month
-    ).aggregate(total_ventas_mes_actual=Sum('total'))['total_ventas_mes_actual']
 
     # Obtener el total de ventas del mes actual
     gastos_mes_actual = Gasto.objects.filter(
@@ -375,10 +412,6 @@ def balance(request):
 
 
 
-
-    # Obtener el top 10 de productos más vendidos
-    top_ventas = DetalleVenta.objects.values('producto__descripcion', 'producto__nombre').annotate(
-        total_ventas=Sum('cantidad')).order_by('-total_ventas')[:10]
 
 
     fecha_actual = date.today()
@@ -401,8 +434,17 @@ def balance(request):
         'ventas': ventas,
         'compras': compras,
         'valuacion_inventario': valuacion_inventario,
-        'ventas_hoy': ventas_hoy or 0,
-        'ventas_mes_actual': ventas_mes_actual or 0,
+
+
+        'ventas_hoy_pesos': ventas_hoy_pesos or 0,
+        'ventas_hoy_usd': ventas_hoy_usd or 0,
+        'ventas_hoy_bs': ventas_hoy_bs or 0,
+
+        'ventas_mes_pesos': ventas_mes_pesos or 0,
+        'ventas_mes_usd': ventas_mes_usd or 0,
+        'ventas_mes_bs': ventas_mes_bs or 0,
+
+        #'ventas_mes_actual': ventas_mes_actual or 0,
         'compras_mes_actual': compras_mes_actual or 0,
         'gastos_mes_actual': gastos_mes_actual or 0,
         'retiros_mes_actual': retiros_mes_actual or 0,
@@ -416,7 +458,7 @@ def balance(request):
     return render(request, 'balance.html', context)
 
 
-def agregar_producto_a_carrito(venta, cantidad, producto):
+def agregar_producto_a_carrito(venta, cantidad, producto, moneda):
     """
     En este método se encuentra la lógica de crear un detalle producto por
     el producto que se ha seleccionado para agregar
@@ -431,7 +473,14 @@ def agregar_producto_a_carrito(venta, cantidad, producto):
         detalle_venta.venta = venta
         detalle_venta.producto = producto
         detalle_venta.cantidad = cantidad
-        detalle_venta.precio = producto.precio
+        detalle_venta.moneda = moneda
+
+        if moneda == "Pesos":
+            detalle_venta.precio = producto.precio
+        elif moneda == "Dolares":
+            detalle_venta.precio = producto.precio_usd
+        else:
+            detalle_venta.precio = producto.precio_bs
         detalle_venta.save()
 
         producto.en_stock = producto.en_stock - cantidad

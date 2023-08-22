@@ -19,7 +19,7 @@
     </div>
     <div class="card-body">
         <div class="row">
-            <div class="col-lg-2 col-md-4 col-sm-6">                
+            <div class="col-lg-3 col-md-6 col-sm-12">                
                 <div class="card border-primary">
                     <div class="card-header bg-primary">
                         <b>
@@ -33,49 +33,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-lg-2 col-md-4 col-sm-6">                
-                <div class="card border-primary">
-                    <div class="card-header bg-primary">
-                        <b>
-                            $ ventas del dia
-                        </b>
-                    </div>
-                    <div class="card-body">
-                        <div class="h5 mb-0 font-weight-bold text-danger">
-                            $ {{ ventas_hoy|intcomma }}
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-2 col-md-4 col-sm-6">                |
-                <div class="card border-primary">
-                    <div class="card-header bg-primary">
-                        <b>
-                            $ compras Mes actual
-                        </b>
-                    </div>
-                    <div class="card-body">
-                        <div class="h5 mb-0 font-weight-bold text-danger">
-                            $ {{ compras_mes_actual|intcomma }}
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-2 col-md-4 col-sm-6">                
-                <div class="card  border-primary">
-                    <div class="card-header bg-primary">
-                        <b>
-                            $ ventas Mes actual
-                        </b>
-                    </div>
-                    <div class="card-body">
-                        <div class="h5 mb-0 font-weight-bold text-danger">
-                            $ {{ ventas_mes_actual|intcomma }}
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-2 col-md-4 col-sm-6">                
+            <div class="col-lg-3 col-md-6 col-sm-12">                
               <div class="card  border-primary">
                   <div class="card-header bg-primary">
                       <b>
@@ -89,7 +47,7 @@
                   </div>
               </div>
             </div>
-            <div class="col-lg-2 col-md-4 col-sm-6">                
+            <div class="col-lg-3 col-md-6 col-sm-12">                
               <div class="card border-primary">
                 <div class="card-header bg-primary">
                     <b>
@@ -103,6 +61,73 @@
                 </div>
               </div>
             </div>
+            <div class="col-lg-3 col-md-6 col-sm-12">                
+              <div class="card border-primary">
+                <div class="card-header bg-primary">
+                    <b>
+                        $ Compras Mes actual
+                    </b>
+                </div>
+                <div class="card-body">
+                    <div class="h5 mb-0 font-weight-bold text-danger">
+                        $ {{ compras_mes_actual|intcomma }}
+                    </div>
+                </div>
+              </div>
+            </div>
+        </div>
+        <hr>
+        <div class="row">
+            <div class="col-6">
+                <div class="card">
+                    <div class="card-header text-light bg-primary">Total de ventas del dia </div>
+                    <div class="card-body">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Total Pesos</th>
+                                    <th>Total Dolares</th>
+                                    <th>Total Bolivianos</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                
+                                <tr>
+                                    <td>$ {{ ventas_hoy_pesos|intcomma }}</td>
+                                    <td>$ {{ ventas_hoy_usd|intcomma }}</td>
+                                    <td>$ {{ ventas_hoy_bs|intcomma }}</td>
+                                </tr>
+                                
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6">
+              <div class="card">
+                  <div class="card-header text-light bg-primary">Total de ventas del mes actual </div>
+                  <div class="card-body">
+                      <table class="table table-striped">
+                          <thead>
+                              <tr>
+                                  <th>Total Pesos</th>
+                                  <th>Total Dolares</th>
+                                  <th>Total Bolivianos</th>
+                              </tr>
+                          </thead>
+                          <tbody>
+                              
+                            <tr>
+                              <td>$ {{ ventas_mes_pesos|intcomma }}</td>
+                              <td>$ {{ ventas_mes_usd|intcomma }}</td>
+                              <td>$ {{ ventas_mes_bs|intcomma }}</td>
+                          </tr>
+                              
+                          </tbody>
+                      </table>
+                  </div>
+              </div>
+          </div>
         </div>
         <hr>
         <div class="row">
@@ -138,7 +163,6 @@
                 </div>
             </div>
         </div>
-
     </div>
 
 

@@ -58,10 +58,18 @@
     <h2>Detalles de la Venta:</h2>
     <ul>
         {% for detalle in venta.detalleventa_set.all %}
-        <li>{{ detalle.producto.nombre }} x{{ detalle.cantidad|floatformat:0 }} |<b style="color: rgb(0, 0, 0);"> ${{ detalle.get_total|floatformat:0|intcomma }}</b></li>
+        <li>{{ detalle.producto.nombre }} | {{ detalle.producto.descripcion }}</li>
+        <li><b>Cant:</b> {{ detalle.cantidad|floatformat:0 }}</li>
+        <li><b>Precio Unit:</b> $ {{ detalle.precio|floatformat:2|intcomma }} {{ detalle.moneda }} </li>
+        <li><b>Total: </b> $ {{ detalle.get_total|floatformat:2|intcomma }}</li>
+        <hr>
         {% endfor %}
     </ul>
-    <hr>
-    <p class="total">Total: <b style="color: rgb(0, 0, 0); font-size: 12px;">${{ venta.get_cart_total|floatformat:0|intcomma }}</b></p>
+
+    <p class="total">Total Pesos: <b style="color: rgb(0, 0, 0); font-size: 14px;">${{ venta.get_cart_total|floatformat:0|intcomma }}</b></p>
+    <p class="total">Total Dolares: <b style="color: rgb(0, 0, 0); font-size: 12px;">${{ venta.get_cart_total_dolares|floatformat:0|intcomma }}</b></p>
+    <p class="total">Total Bolivianos: <b style="color: rgb(0, 0, 0); font-size: 12px;">${{ venta.get_cart_total_bolivianos|floatformat:0|intcomma }}</b></p>
+
+    <p>¡Gracias por su compra!</p>
 </body>
 </html>

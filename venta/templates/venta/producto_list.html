@@ -58,11 +58,9 @@
                                         <!-- Button trigger modal -->
                                         <button type="button" class="btn btn-danger btn-circle" data-toggle="modal"
                                                 data-target="#addToCart{{ producto.id }}">Añadir al carrito 
-                                            
                                         </button>
 
                                         <!-- Modal -->
-
                                         <div class="modal fade" id="addToCart{{ producto.id }}" tabindex="-1" role="dialog"
                                             aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
                                             <div class="modal-dialog modal-dialog-centered" role="document">
@@ -78,14 +76,23 @@
                                                         </div>
                                                         <div class="modal-body">
                                                             {% csrf_token %}
+
                                                             <input type="hidden" name="id_producto" id="id_producto"
                                                                 value="{{ producto.id }}">
                                                             <label class="text-primary"  for="cantidad">Cantidad</label>
+
                                                             <input required name="cantidad" id="cantidad" type="number"
                                                                 class="form-control"
                                                                 step=".01"
                                                                 min="1"
                                                                 max="{{ producto.en_stock }}" value="1">
+                                                            <label class="text-primary" for="moneda">Moneda</label>
+                                                            
+                                                            <select name="moneda" id="moneda" class="form-control">
+                                                                <option value="Pesos">Pesos</option>
+                                                                <option value="Dolares">Dolares</option>
+                                                                <option value="Bolivianos">Bolivianos</option>
+                                                            </select> 
                                                         </div>
                                                         <div class="modal-footer">
                                                             <button type="submit" class="btn btn-primary btn-block">Añadir</button>
@@ -113,7 +120,9 @@
                                             {{ producto.descripcion }}
                                         </p>
                                         <hr>
-                                        <b><p class="mb-2 text-danger" style="font-size: x-large;">$ {{ producto.precio|intcomma }}</p></b>
+                                        <b><p class="mb-2 text-danger" style="font-size: x-large;"></b>ARS $ </b>{{ producto.precio|intcomma }}</p>
+                                        <b><p class="mb-2 text-danger" style="font-size: x-medium;">USD </b> {{ producto.precio_usd|intcomma }}</p>
+                                        <b><p class="mb-2 text-danger" style="font-size: x-medium;">BOL </b> {{ producto.precio_bs|intcomma }}</p>
 
                                     </div>
 

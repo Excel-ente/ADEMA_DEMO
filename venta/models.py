@@ -9,6 +9,12 @@ from producto.models import Producto
 from repositories.VentaRepository import VentaRepository
 
 
+MONEDAS = [
+    ("Pesos","Pesos"),
+    ("Dolares","Dolares"),
+    ("Bolivianos","Bolivianos"),
+]
+
 
 class Venta(models.Model):
     codigo = models.CharField(max_length=200, null=True, blank=True)
@@ -16,6 +22,8 @@ class Venta(models.Model):
     vendedor = models.ForeignKey(Vendedor,on_delete=models.DO_NOTHING,blank=True,null=True)
     fecha = models.DateTimeField( null=True, blank=True)
     total = models.DecimalField(max_length=25, decimal_places=2, max_digits=10, null=True)
+    total_dolares =  models.DecimalField(max_length=25, decimal_places=2, max_digits=10, null=True)
+    total_bolivianos =  models.DecimalField(max_length=25, decimal_places=2, max_digits=10, null=True)
     nombre_factura = models.CharField(verbose_name='Vendedor',max_length=200, null=True, blank=True)
     nit = models.IntegerField(null=True, blank=True)
     razon_cancelacion = models.CharField(max_length=200, null=True, blank=True)
@@ -60,7 +68,19 @@ class Venta(models.Model):
 
     @property
     def get_cart_total(self):
-        detalleventas = self.detalleventa_set.all()
+        detalleventas = self.detalleventa_set.all().filter(moneda='Pesos')
+        total = sum([item.get_total for item in detalleventas])
+        return total
+
+    @property
+    def get_cart_total_dolares(self):
+        detalleventas = self.detalleventa_set.all().filter(moneda='Dolares')
+        total = sum([item.get_total for item in detalleventas])
+        return total
+    
+    @property
+    def get_cart_total_bolivianos(self):
+        detalleventas = self.detalleventa_set.all().filter(moneda='Bolivianos')
         total = sum([item.get_total for item in detalleventas])
         return total
 
@@ -85,6 +105,7 @@ class DetalleVenta(models.Model):
     fecha = models.DateField(auto_now_add=True,blank=True,null=True)
     venta = models.ForeignKey(Venta, on_delete=models.CASCADE)
     producto = models.ForeignKey(Producto, on_delete=models.CASCADE)
+    moneda = models.CharField(max_length=30,choices=MONEDAS,default=1)
     cantidad = models.DecimalField(max_digits=25, decimal_places=2)
     precio = models.PositiveIntegerField()
 
