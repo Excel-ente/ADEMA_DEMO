@@ -251,7 +251,7 @@ def dashboard(request):
 @login_required(login_url='/admin/login/')
 def compra(request):
 
-    compra_list = Compra.objects.all().order_by('fecha')
+    compra_list = Compra.objects.all().order_by('|fecha')
 
     context = {'compra_list': compra_list}
 
@@ -319,7 +319,7 @@ def carrito(request):
             lista_detalle = DetalleVenta.objects.filter(venta=new_venta)
             return render(request, 'venta/carrito.html',
                           {'lista_detalle': lista_detalle, 'venta': new_venta, 'data': data})
-        
+    
         elif 'detalle_id' in request.POST:
             nueva_cantidad = request.POST['nueva_cantidad']
             nuevo_precio = request.POST['nuevo_precio']
@@ -331,6 +331,14 @@ def carrito(request):
             detalle_venta.precio = nuevo_precio
             #detalle_venta.total = nuevo_precio * nueva_cantidad
             detalle_venta.save()
+
+        elif 'id_cliente' in request.POST:
+            
+            selected_cliente_id = request.POST['id_cliente']
+            print(selected_cliente_id)
+            selected_cliente = Cliente.objects.get(id=selected_cliente_id)
+            venta.cliente = selected_cliente  # Update the sale's client
+            venta.save()
 
         elif request.POST['detalle_id_delete']:
             nombre_producto_eliminado = eliminar_de_carrito(request.POST['detalle_id_delete'])

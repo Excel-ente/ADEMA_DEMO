@@ -50,28 +50,28 @@
                                         </button>
                                     </div>
                                     <div class="modal-body">
-                                        <!-- Aquí colocamos la lista de clientes -->
-                                        <ul class="list-group">
-                                            {% for cliente in lista_clientes %}
-                                                <li class="list-group-item">
-                                                    <a href="#" class="select-cliente" data-id="{{ cliente.id }}" data-nombre="{{ cliente.nombre }}">
-                                                        {{ cliente.nombre }}
-                                                    </a>
-                                                </li>
-                                            {% endfor %}
-                                        </ul>
+                                        <form method="post">
+                                            <h5>Seleccionar cliente:</h5>
+                                            {% csrf_token %}
+                                            <select name="id_cliente" class="form-control">
+                                                {% for cliente in lista_clientes %}
+                                                    <option value="{{ cliente.id }}">{{ cliente.nombre }}</option>
+                                                {% endfor %}
+                                            </select>
+                                            <br>
+                                            <button type="submit" class="btn btn-primary">Guardar</button>
+                                        </form>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-
-
+                    
                     <div class="row" style="align-items: center;margin: 20px;">             
                         <button class="btn btn-outline-primary" type="button" data-toggle="modal" data-target="#modalClientes">
-                        Buscar cliente <i class="fas fa-search"></i>
-                    </button>
-                </div>
+                            Buscar cliente <i class="fas fa-search"></i>
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Colocar el botón a la izquierda -->
@@ -212,23 +212,14 @@
     </div>
 
 
-
-    
-</div>
-
-
-
 <script>
     $(document).ready(function () {
-        // Cuando se hace clic en un cliente en el modal
-        $('.select-cliente').on('click', function () {
-            const clienteId = $(this).data('id');
-            const clienteNombre = $(this).data('nombre');
-            $('#cliente').val(clienteNombre); // Actualizamos el input con el nombre del cliente
-            $('#id_cliente').val(clienteId); // Agregamos el ID del cliente al campo oculto
-            $('#modalClientes').modal('hide'); // Cerramos el modal
+        // When the modal is hidden, submit the form with the selected client
+        $('#modalClientes').on('hidden.bs.modal', function () {
+            $('#cliente-form').submit(); // Submit the form
         });
-
     });
 </script>
+
+</div>
 {% endblock %}
