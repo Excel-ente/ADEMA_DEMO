@@ -10,11 +10,20 @@ class ProductoForm(forms.ModelForm):
                                 widget=forms.NumberInput(attrs={
                                     'class': 'form-control',
                                 }))
+    precio_usd = forms.DecimalField(initial=00.00, min_value=0,
+                                widget=forms.NumberInput(attrs={
+                                    'class': 'form-control',
+                                }))
+    precio_bs = forms.DecimalField(initial=00.00, min_value=0,
+                                widget=forms.NumberInput(attrs={
+                                    'class': 'form-control',
+                                }))
+
     categoria = forms.Select(attrs={'class': 'form-control'})
 
     class Meta:
         model = Producto
-        fields = ['nombre', 'descripcion', 'precio', 'categoria']
+        fields = ['nombre', 'descripcion', 'precio','precio_usd', 'precio_bs', 'categoria']
         widgets = {
             'nombre': forms.TextInput(attrs={
                 'class': 'form-control',
@@ -31,7 +40,9 @@ class ProductoForm(forms.ModelForm):
         labels = {
             'nombre': 'Nombre',
             'descripcion': 'Envase',
-            'precio': 'Precio de Venta',
+            'precio': 'Precio en Pesos',
+            'precio_usd': 'Precio en Dolares',
+            'precio_bs': 'Precio en Bolivianos',
             'categoria': 'Categoría',
         }
 

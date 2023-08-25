@@ -215,21 +215,32 @@ def dashboard(request):
 
     desde = request.GET.get('desde')  # Obtener el valor desde el parámetro GET
     hasta = request.GET.get('hasta')  # Obtener el valor hasta el parámetro GET
+    moneda = request.GET.get('moneda')
+
 
     if desde and hasta:
         # Filtrar las ventas dentro del rango de fechas especificado
         ventas_filtradas = Venta.objects.filter(
             fecha__date__range=[desde, hasta],  # Utilizar el rango de fechas
-            estado__in=[1, 2, 3]  # Filtrar por estados específicos
+            estado__in=[ 2, 3]  # Filtrar por estados específicos
         )
-        # Filtrar los detalles de venta relacionados con las ventas filtradas
-        lista_ventas = DetalleVenta.objects.filter(venta__in=ventas_filtradas)
+
+        if moneda and moneda != "Todas":
+            lista_ventas = DetalleVenta.objects.filter(venta__in=ventas_filtradas,moneda=moneda)
+
+        else:
+            lista_ventas = DetalleVenta.objects.filter(venta__in=ventas_filtradas)
 
     else:
+        
         ventas_filtradas = Venta.objects.all()
     
-    # Calcular el total de ventas dentro del rango
-    total_rango = ventas_filtradas.aggregate(Sum('total'))['total__sum'] or 0
+    # Calcular el total de ventas filtrado por moneda="Pesos"
+    total_ars = sum(item.get_total for item in lista_ventas if item.moneda == 'Pesos')
+    # Calcular el total de ventas filtrado por moneda="Dolares"
+    total_usd = sum(item.get_total for item in lista_ventas if item.moneda == 'Dolares')
+    # Calcular el total de ventas filtrado por moneda="Bolivianos"
+    total_bs = sum(item.get_total for item in lista_ventas if item.moneda == 'Bolivianos')
 
     # Obtener la fecha actual en Argentina
     argentina_timezone = timezone('America/Argentina/Buenos_Aires')
@@ -244,7 +255,9 @@ def dashboard(request):
     context = {
         'lista_ventas': lista_ventas, 
         'mes':mes,
-        'total':total_rango,
+        'total_ars':total_ars,
+        'total_usd':total_usd,
+        'total_bs':total_bs,
         }
     return render(request, 'home.html', context)
 

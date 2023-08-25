@@ -27,7 +27,9 @@
                 <th scope="col">Envase</th>
                 <th scope="col">En stock</th>
                 <th scope="col">Categoría</th>
-                <th scope="col">Precio</th>
+                <th scope="col">Precio $</th>
+                <th scope="col">Precio Bs</th>
+                <th scope="col">Precio Usd</th>
                 <th scope="col">Opciones</th>
             </tr>
             </thead>
@@ -45,6 +47,8 @@
                     {% endif %}
                     <td>{{ producto.categoria|default:'Sin Categoría' }}</td>
                     <td>$ {{ producto.precio }}</td>
+                    <td>$ {{ producto.precio_bs }}</td>
+                    <td>$ {{ producto.precio_usd }}</td>
                     <td>
                         <a class="btn btn-primary"
                         href="{% url 'producto:update' producto.id %}">Editar</a>
