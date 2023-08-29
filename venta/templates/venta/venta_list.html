@@ -16,11 +16,11 @@
                             <div class="row">
                                 <div class="col-4">
                                     <label for="" class="text-primary"><b>Desde</b></label>
-                                    <input type="date" name="desde" class="form-control" value="{{ desde|date:'Y-m-d' }}">
+                                    <input type="date" id="desde" name="desde" class="form-control" value="{{ desde|date:'Y-m-d' }}">
                                 </div>
                                 <div class="col-4">
                                     <label for="" class="text-primary"><b>Hasta</b></label>
-                                    <input type="date" name="hasta" class="form-control" value="{{ hasta|date:'Y-m-d'}}">
+                                    <input type="date" id="hasta" name="hasta" class="form-control" value="{{ hasta|date:'Y-m-d'}}">
                                 </div>
                                 <div class="col-4">
                                     <button type="submit" class="btn btn-primary">Filtrar</button>
@@ -49,7 +49,8 @@
                             <th scope="col">Venta #</th>
                             <th scope="col">Fecha</th>
                             <th scope="col">Cantidad de productos</th>
-                            <th scope="col">Total</th>
+                            <th scope="col">Total</th>                        
+                            <th scope="col">Estado</th>
                             <th scope="col">Acciones</th>
                         </tr>
                     </thead>
@@ -61,9 +62,28 @@
                                     <td>{{ venta.get_date }}</td>
                                     <td>{{ venta.get_cart_items|floatformat:0 }}</td>
                                     <td>$ {{ venta.get_cart_total|intcomma }}</td>
+
+                                    {% if venta.estado == 1 %}
+                                    <td>Pagada</td>
+                                    {% endif %}
+                                    
+                                    {% if venta.estado == 2 %}
+                                    <td>Facturada</td>
+                                    {% endif %}
+                                    
+                                    {% if venta.estado == 3 %}
+                                    <td>Finalizada</td>
+                                    {% endif %}
+                                    
+                                    {% if venta.estado == 5 %}
+                                    <td>Anulada</td>
+                                    {% endif %}
+
                                     <td>
-                                        <a class="btn btn-danger" style="margin: 15px;"
-                                            href="{% url 'venta:anular' venta.id %}">Anular</a>
+                                        {% if venta.estado != 5 %}
+                                        <a class="btn btn-danger" style="margin: 15px;" href="{% url 'venta:anular' venta.id %}">Anular</a>
+                                        {% endif %}
+                                        
                                         <a class="btn btn-success" style="margin: 15px;"
                                             href="{% url 'venta:imprimir_ticket' venta.id %}">Imprimir</a>
                                     </td>
@@ -76,4 +96,25 @@
         </div>    
     </div>
 </div>
+
+<script>
+
+function getCurrentDateFormatted() {
+  const today = new Date();
+  const currentDateFormatted = today.toISOString().split('T')[0];
+  return currentDateFormatted;
+}
+
+function setDefaultDates() {
+  const fechaDesdeInput = document.getElementById('desde');
+  const fechaHastaInput = document.getElementById('hasta');
+
+  fechaDesdeInput.value = getCurrentDateFormatted();
+  fechaHastaInput.value = getCurrentDateFormatted();
+}
+
+// Llama a la función para configurar los valores predeterminados cuando se cargue la página
+setDefaultDates();
+
+</script>
 {% endblock %}

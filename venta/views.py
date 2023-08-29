@@ -102,13 +102,13 @@ class VentaList(ListView):
             # Filtrar las ventas dentro del rango de fechas especificado
             ventas_filtradas = Venta.objects.filter(
                 fecha__date__range=[desde, hasta],  # Utilizar el rango de fechas
-                estado__in=[1, 2, 3]  # Filtrar por estados específicos
-            )
+                estado__in=[1, 2, 3, 5]  # Filtrar por estados específicos
+            ).order_by('-fecha')
             # Filtrar los detalles de venta relacionados con las ventas filtradas
             lista_ventas = DetalleVenta.objects.filter(venta__in=ventas_filtradas)
 
         else:
-            ventas_filtradas = Venta.objects.all()
+            ventas_filtradas = Venta.objects.all().order_by('-fecha')
 
 
         # Calcular el total de ventas dentro del rango
@@ -223,17 +223,16 @@ def dashboard(request):
         ventas_filtradas = Venta.objects.filter(
             fecha__date__range=[desde, hasta],  # Utilizar el rango de fechas
             estado__in=[ 2, 3]  # Filtrar por estados específicos
-        )
+        ).order_by('-fecha')
 
         if moneda and moneda != "Todas":
             lista_ventas = DetalleVenta.objects.filter(venta__in=ventas_filtradas,moneda=moneda)
-
         else:
             lista_ventas = DetalleVenta.objects.filter(venta__in=ventas_filtradas)
 
     else:
         
-        ventas_filtradas = Venta.objects.all()
+        ventas_filtradas = Venta.objects.all().order_by('-fecha')
     
     # Calcular el total de ventas filtrado por moneda="Pesos"
     total_ars = sum(item.get_total for item in lista_ventas if item.moneda == 'Pesos')

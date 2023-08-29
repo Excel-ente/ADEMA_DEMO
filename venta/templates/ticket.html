@@ -47,6 +47,9 @@
     </style>
 </head>
 <body >
+    {% if venta.estado == 5 %}
+    <h1 style="color: red;">FACTURA ANULADA</h1>
+    {% endif %}
     <h1>La Quiaca</h1>
     <h4>Balcarce 724 La Quiaca, Jujuy</h4>
     <h4>+54 9 3885 41-0214</h4>
@@ -67,7 +70,7 @@
     </ul>
 
     <p class="total">Total Pesos: <b style="color: rgb(0, 0, 0); font-size: 14px;">${{ venta.get_cart_total|floatformat:0|intcomma }}</b></p>
-
+    
     <p>¡Gracias por su compra!</p>
 </body>
 </html>
