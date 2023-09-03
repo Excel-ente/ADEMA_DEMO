@@ -46,10 +46,13 @@
                 <table class="table">
                     <thead class="bg-primary" style="color: aliceblue;">
                         <tr>
-                            <th scope="col">Venta #</th>
+                            <th scope="col"># Venta </th>
                             <th scope="col">Fecha</th>
+                            <th scope="col">Cliente</th>
                             <th scope="col">Cantidad de productos</th>
-                            <th scope="col">Total</th>                        
+                            <th scope="col">Total Pesos</th> 
+                            <th scope="col">Total Bs</th>                        
+                            <th scope="col">Total Dolar</th> 
                             <th scope="col">Estado</th>
                             <th scope="col">Acciones</th>
                         </tr>
@@ -58,10 +61,20 @@
                         {% for venta in venta_list %}
                             {% if venta.detalleventa_set.all %}
                                 <tr>
-                                    <td class="text-primary"><b>Venta #{{ venta.pk }}</b></td>
+                                    <td class="text-primary"><b>    #{{ venta.pk }}</b></td>
                                     <td>{{ venta.get_date }}</td>
+
+                                    
+                                    {% if venta.cliente == None %}
+                                    <td>Cons. Final</td>
+                                    {% else %}
+                                    <td>{{ venta.cliente }}</td>
+                                    {% endif %}
+
                                     <td>{{ venta.get_cart_items|floatformat:0 }}</td>
                                     <td>$ {{ venta.get_cart_total|intcomma }}</td>
+                                    <td>$ {{ venta.get_cart_total_dolares|intcomma }}</td>
+                                    <td>$ {{ venta.get_cart_total_bolivianos|intcomma }}</td>
 
                                     {% if venta.estado == 1 %}
                                     <td>Pagada</td>

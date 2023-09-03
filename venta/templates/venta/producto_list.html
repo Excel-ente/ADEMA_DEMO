@@ -1,11 +1,31 @@
 {% extends 'core/base.html' %}
 {% load humanize %}
 {% block styles %}
-    {% load static %}
+{% load static %}
+
     <link rel="stylesheet" href="{% static 'producto/css/style.css' %}">
 {% endblock %}
 
 {% block content %}
+<style>
+    /* Estilo para el texto emergente */
+.hover-text {
+    display: none;
+    position: absolute;
+    background-color: #ff7979;
+    padding: 5px;
+    border: 1px solid #000000;
+    border-radius: 3px;
+    margin-top: -25px; /* Ajusta la posición vertical según tus necesidades */
+    margin-left: 10px; /* Ajusta la posición horizontal según tus necesidades */
+    z-index: 1; /* Asegura que el texto esté por encima de otros elementos */
+}
+
+/* Mostrar el texto emergente en el hover */
+.btn:hover .hover-text {
+    display: inline-block;
+}
+</style>
 <div class="container">
     <div class="" style="text-align: start;">
         <h1 class="text-light p-3" style="margin-top: 80px;"><b></b></h1>
@@ -56,10 +76,18 @@
                                 <div class="card mr-2 text-dark">
                                     <div class="card-header bg-primary">                         
                                         <!-- Button trigger modal -->
-                                        <button type="button" class="btn btn-danger btn-circle" data-toggle="modal"
-                                                data-target="#addToCart{{ producto.id }}">Añadir al carrito 
+                                        {% if producto.en_stock <= 0 %}
+                                        <button type="button" class="btn btn-warning btn-circle" data-toggle="modal"
+                                                data-target="#addToCart{{ producto.id }}"><i class="fas fa-chart"></i>Añadir al carrito 
+                                                <span class="hover-text">Producto sin stock</span>
+                                            </button>
+                                        {% else %}
+                                        <button type="button" class="btn btn-danger btn-circle" data-toggle="modal" data-target="#addToCart{{ producto.id }}">
+                                            <i class="fas fa-cart-plus"></i>Añadir al carrito 
+                                            
                                         </button>
-
+                                        
+                                        {% endif %}
                                         <!-- Modal -->
                                         <div class="modal fade" id="addToCart{{ producto.id }}" tabindex="-1" role="dialog"
                                             aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
@@ -104,13 +132,12 @@
                                 </div>        
                                     
                                     <div class="card-body">
-                                       <!--{% if producto.imagen %}
-                                            <img src="{{ producto.imagen.url }}" alt="{{ producto.nombre }}">
+                                        {% if producto.imagen %}
+                                            <img src="{{ producto.imagen.url }}" alt="{{ producto.nombre }}" class="img-fluid" style="height: 200px;">
                                         {% else %}
-
-                                            <img src="{% static 'img\productDefault.png' %}" alt="{{ producto.nombre }}">
+                                            <img src="{% static 'producto/placeholder.png' %}" alt="Imagen no disponible" class="img-fluid" style="height: 200px;">
                                         {% endif %}
-                                    --> 
+                                     
                                         <hr>
                                         <b class="text-primary" style="font-size: x-large;"><p class="card-title">
                                             {{ producto.nombre }}
@@ -132,15 +159,15 @@
                                                 En stock:
                                                 <br>
                                                 {% if producto.en_stock >= 0 %}
-                                                <b class="text-success">{{ producto.en_stock }}</b>
-                                                {% else %}
                                                 <b class="text-danger">{{ producto.en_stock }}</b>
+                                                {% else %}
+                                                <b class="text-warning">{{ producto.en_stock }}</b>
                                                 {% endif %}
                                             </div>
                                             <div class="col">
                                                 Categoría:
                                                 <br>
-                                                <b class="text-danger">{{ producto.categoria|default:'Sin categoría' }}</b>
+                                                <b class="text-success">{{ producto.categoria|default:'Sin categoría' }}</b>
                                             </div>
                                         </div>
                                     </div>
