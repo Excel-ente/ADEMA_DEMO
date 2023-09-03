@@ -19,10 +19,12 @@ from venta.views import login
 
 from producto.urls import producto_patterns
 from venta.urls import venta_patterns
+from django.conf.urls.static import static
+from django.conf import settings
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('login/',login,name="login"),
     path('', include(venta_patterns)),
     path('', include(producto_patterns)),
-]
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
