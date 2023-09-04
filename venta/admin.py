@@ -27,7 +27,7 @@ class DetalleVentaAdmin(ImportExportModelAdmin):
 
 @admin.register(Venta)
 class VentaAdmin(admin.ModelAdmin):
-    list_display = ('codigo','fecha','vendedor','cliente','total_factura','ESTADO')
+    list_display = ('codigo','fecha','cajero','cliente','total_factura','ESTADO')
     exclude = ('nit','nombre_factura','total')
    # readonly_fields =  ('codigo','cliente','fecha','total_factura','razon_cancelacion','estado')
    # list_display_links = ('codigo','fecha','cliente',)
@@ -49,7 +49,10 @@ class VentaAdmin(admin.ModelAdmin):
 
         return msj
     
-    
+    def cajero(self, obj):
+
+        return obj.nombre_factura
+
     
     def total_factura(self, obj):
         if obj.total is not None:

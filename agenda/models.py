@@ -1,4 +1,18 @@
 from django.db import models
+from django.contrib.auth.models import User
+
+CAJA = [
+        ('caja_1', 'caja_1'),
+        ('caja_2', 'caja_2'),
+    ]
+class Asignacion(models.Model):
+
+    usuario = models.ForeignKey(User,on_delete=models.CASCADE)
+    caja = models.CharField(max_length=10, choices=CAJA, default='caja_1')
+    
+    def __str__(self):
+        return self.usuario.first_name
+
 
 # Definir un diccionario con el nombre de los meses en español
 meses = {

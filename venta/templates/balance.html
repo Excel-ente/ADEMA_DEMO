@@ -18,6 +18,18 @@
         <h1 class="text-white">Balance</h1>
     </div>
     <div class="card-body">
+         <!-- Tarjetas -->
+        <div class="row">
+          <div class="card">
+            <div class="card-header text-light bg-primary">Movimientos últimos 20 dias</div>
+              <div class="card-body">
+                <canvas id="myChart"></canvas>
+              </div>
+          </div>
+          
+        </div>
+        <hr>     
+        <!-- Tarjetas -->
         <div class="row">
             <div class="col-lg-3 col-md-6 col-sm-12">                
                 <div class="card border-primary">
@@ -77,6 +89,7 @@
             </div>
         </div>
         <hr>
+        <!-- Total ventas del dia -->
         <div class="row">
             <div class="col-6">
                 <div class="card">
@@ -85,18 +98,37 @@
                         <table class="table table-striped">
                             <thead>
                                 <tr>
+                                    <th>Caja</th>
                                     <th>Total Pesos</th>
                                     <th>Total Dolares</th>
                                     <th>Total Bolivianos</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                
-                                <tr>
-                                    <td>$ {{ ventas_hoy_pesos|intcomma }}</td>
-                                    <td>$ {{ ventas_hoy_usd|intcomma }}</td>
-                                    <td>$ {{ ventas_hoy_bs|intcomma }}</td>
-                                </tr>
+                              <tr>
+                                <td>Caja 1</td>
+                                <td>$ {{ ventas_hoy_pesos_c1|intcomma }}</td>
+                                <td>$ {{ ventas_hoy_usd_c1|intcomma }}</td>
+                                <td>$ {{ ventas_hoy_bs_c1|intcomma }}</td>
+                              </tr> 
+                              <tr>
+                                <td>Caja 2</td>
+                                <td>$ {{ ventas_hoy_pesos_c2|intcomma }}</td>
+                                <td>$ {{ ventas_hoy_usd_c2|intcomma }}</td>
+                                <td>$ {{ ventas_hoy_bs_c2|intcomma }}</td>
+                              </tr> 
+                              <tr>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                              </tr> 
+                              <tr class="bg-primary">
+                                <td class="text-light">Total</td>
+                                  <td class="text-light">$ {{ ventas_hoy_pesos|intcomma }}</td>
+                                  <td class="text-light">$ {{ ventas_hoy_usd|intcomma }}</td>
+                                  <td class="text-light">$ {{ ventas_hoy_bs|intcomma }}</td>
+                              </tr>
                                 
                             </tbody>
                         </table>
@@ -130,6 +162,7 @@
           </div>
         </div>
         <hr>
+        <!-- Tabla ranking productos -->
         <div class="row">
             <div class="col-6">
                 <div class="card">
@@ -155,12 +188,7 @@
                 </div>
             </div>
             <div class="col-6">
-                <div class="card">
-                  <div class="card-header text-light bg-primary">Movimientos últimos 20 dias</div>
-                    <div class="card-body">
-                        <canvas id="myChart"></canvas>
-                      </div>
-                </div>
+
             </div>
         </div>
     </div>
@@ -194,6 +222,40 @@
       pointHitRadius: 10,
       pointBorderWidth: 2,
       data: [{% for venta in ventas_por_dia %} {{ venta.total_ventas|floatformat:0 }}, {% endfor %}],
+    },
+    {
+      type: 'line',
+      label: "Ventas",
+      lineTension: 0.3,
+      backgroundColor: "rgba(40, 255, 100, 0.2)", // Cambiar a azul (primary)
+      borderColor: "rgba(40, 255, 100, 1)", // Cambiar a azul (primary)
+      borderWidth: 2,
+      pointRadius: 3,
+      pointBackgroundColor: "rgba(40, 255, 100, 0.2)", // Cambiar a azul (primary)
+      pointBorderColor: "rgba(40, 255, 100, 1)", // Cambiar a azul (primary)
+      pointHoverRadius: 3,
+      pointHoverBackgroundColor: "rgba(40, 255, 100, 1)", // Cambiar a azul (primary)
+      pointHoverBorderColor: "rgba(40, 255, 100, 0.2)", // Cambiar a azul (primary)
+      pointHitRadius: 10,
+      pointBorderWidth: 2,
+      data: [{% for venta in ventas_por_dia_bs %} {{ venta.total_ventas|floatformat:0 }}, {% endfor %}],
+    },
+    {
+      type: 'line',
+      label: "Ventas",
+      lineTension: 0.3,
+      backgroundColor: "rgba(255, 10, 0, 0.2)", // Cambiar a azul (primary)
+      borderColor: "rgba(255, 10, 0, 1)", // Cambiar a azul (primary)
+      borderWidth: 2,
+      pointRadius: 3,
+      pointBackgroundColor: "rgba(255, 10, 0, 0.2)", // Cambiar a azul (primary)
+      pointBorderColor: "rgba(255, 10, 0, 1)", // Cambiar a azul (primary)
+      pointHoverRadius: 3,
+      pointHoverBackgroundColor: "rgba(255, 10, 0, 1)", // Cambiar a azul (primary)
+      pointHoverBorderColor: "rgba(255, 10, 0, 0.2)", // Cambiar a azul (primary)
+      pointHitRadius: 10,
+      pointBorderWidth: 2,
+      data: [{% for venta in ventas_por_dia_usd %} {{ venta.total_ventas|floatformat:0 }}, {% endfor %}],
     }
     ]
   },

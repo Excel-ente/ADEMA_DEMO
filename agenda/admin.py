@@ -1,9 +1,12 @@
 from django.contrib import admin
-from .models import Cliente,Vendedor,Viaje,Gasto,TipoGasto,Retiro
+from .models import Cliente,Vendedor,Viaje,Gasto,TipoGasto,Retiro,Asignacion
 # Register your models here.
 admin.site.register(Cliente)
 admin.site.register(Vendedor)
 
+@admin.register(Asignacion)
+class AsignacionAdmin(admin.ModelAdmin):
+    list_display = ('usuario','caja',)
 
 @admin.register(Viaje)
 class ViajeAdmin(admin.ModelAdmin):

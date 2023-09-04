@@ -54,9 +54,11 @@
     <h4>Balcarce 724 La Quiaca, Jujuy</h4>
     <h4>+54 9 3885 41-0214</h4>
     <hr>
-    <p>Nº Venta: {{ venta.id }}</p>  
-    <p>Cliente: {{ venta.cliente }}</p>
-    <p>Fecha: {{ venta.fecha }}</p>
+    <p style="margin-bottom: 0;">Nº Venta: {{ venta.id }}</p>  
+    <p style="margin: 0;">Cliente: {{ venta.cliente }}</p>
+    <p style="margin: 0;">Caja: {{ venta.nombre_factura }}</p>
+    <p style="margin: 0;">Fecha: {{ venta.fecha }}</p>
+
     <hr>
     <h2>Detalles de la Venta:</h2>
     <ul>

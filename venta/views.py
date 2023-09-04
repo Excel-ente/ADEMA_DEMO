@@ -18,7 +18,7 @@ from venta.models import Venta, DetalleVenta
 from agenda.models import Gasto,Retiro
 from compra.models import Compra
 from producto.models import Producto
-from agenda.models import Cliente
+from agenda.models import Cliente,Asignacion
 
 from django.shortcuts import render
 from django.http import HttpResponse
@@ -45,8 +45,19 @@ class PrintTicketPDFView(View):
         return response
     
 def imprimir_ticket(request, venta_id):
+
+    usuario_actual = request.user
+    asignacion_usuario = Asignacion.objects.filter(usuario=usuario_actual).first()
+
+    if asignacion_usuario:
+        caja_usuario = asignacion_usuario.caja
+    else:
+        # Maneja el caso en el que el usuario no tenga asignada una caja
+        caja_usuario = 'caja_1'  # Puedes definir una caja predeterminada o manejarlo de otra manera
+
+
     # Obtén la venta actual
-    venta = obtener_venta_actual()
+    venta = obtener_venta_actual(caja_usuario)
 
     # Cargar la plantilla HTML del ticket
     template = get_template('ticket.html')
@@ -169,6 +180,8 @@ class VentaUpdate(UpdateView):
     """
     Actualización de la venta (cambiar de estado a anulada o cancelada), ningún otro cambio puede ser actualizado
     """
+
+
     model = Venta
     form_class = VentaForm
     template_name_suffix = '_update_form'
@@ -195,13 +208,14 @@ class VentaUpdate(UpdateView):
 
         if venta.estado == venta.ESTADO_CREADA:
             venta.cancelar(motivo)
-            obtener_venta_actual()
+            obtener_venta_actual(self.caja_usuario)  # Usar la caja del usuario
         else:
             venta.anular(motivo)
 
         devolver_productos_a_stock(venta.id)
         venta.save()
         return redirect_url
+    
 
 def login(request):
 
@@ -276,7 +290,17 @@ def product_list(request):
     :param request:
     :return:
     """
-    venta = obtener_venta_actual()
+
+    usuario_actual = request.user
+    asignacion_usuario = Asignacion.objects.filter(usuario=usuario_actual).first()
+
+    if asignacion_usuario:
+        caja_usuario = asignacion_usuario.caja
+    else:
+        # Maneja el caso en el que el usuario no tenga asignada una caja
+        caja_usuario = 'caja_1'  # Puedes definir una caja predeterminada o manejarlo de otra manera
+
+    venta = obtener_venta_actual(caja_usuario)
     data = {}
     lista_productos = Producto.objects.order_by('nombre')
 
@@ -311,7 +335,17 @@ def carrito(request):
     :return:
     """
 
-    venta = obtener_venta_actual()
+    usuario_actual = request.user
+    asignacion_usuario = Asignacion.objects.filter(usuario=usuario_actual).first()
+
+    if asignacion_usuario:
+        caja_usuario = asignacion_usuario.caja
+    else:
+        # Maneja el caso en el que el usuario no tenga asignada una caja
+        caja_usuario = 'caja_1'  # Puedes definir una caja predeterminada o manejarlo de otra manera
+
+    venta = obtener_venta_actual(caja_usuario)  # Pasa la caja del usuario a la función obtener_venta_actual()
+
     lista_detalle = DetalleVenta.objects.filter(venta=venta)
     lista_clientes = Cliente.objects.all()
     data = {}
@@ -327,7 +361,7 @@ def carrito(request):
         elif 'finalizar' in request.POST:
             venta.finalizar()
             venta.save()
-            new_venta = obtener_venta_actual()
+            new_venta = obtener_venta_actual(caja_usuario)
             lista_detalle = DetalleVenta.objects.filter(venta=new_venta)
             return render(request, 'venta/carrito.html',
                           {'lista_detalle': lista_detalle, 'venta': new_venta, 'data': data})
@@ -335,9 +369,7 @@ def carrito(request):
         elif 'detalle_id' in request.POST:
             nueva_cantidad = request.POST['nueva_cantidad']
             nuevo_precio = request.POST['nuevo_precio']
-
             detalle_id = request.POST['detalle_id']
-            print(detalle_id)
             detalle_venta = DetalleVenta.objects.get(id=detalle_id)
             detalle_venta.cantidad = nueva_cantidad
             detalle_venta.precio = nuevo_precio
@@ -347,7 +379,6 @@ def carrito(request):
         elif 'id_cliente' in request.POST:
             
             selected_cliente_id = request.POST['id_cliente']
-            print(selected_cliente_id)
             selected_cliente = Cliente.objects.get(id=selected_cliente_id)
             venta.cliente = selected_cliente  # Update the sale's client
             venta.save()
@@ -390,10 +421,23 @@ def balance(request):
     # Obtener todas las ventas del día actual
     ventas_hoy = DetalleVenta.objects.filter(fecha__range=(hora_inicio_dia, hora_fin_dia))
 
+    ventas_hoy_caja_1 = DetalleVenta.objects.filter(fecha__range=(hora_inicio_dia, hora_fin_dia),venta__nombre_factura='caja_1')
+    ventas_hoy_caja_2 = DetalleVenta.objects.filter(fecha__range=(hora_inicio_dia, hora_fin_dia),venta__nombre_factura='caja_2')
+
     # Calcular los totales de ventas por moneda
     ventas_hoy_pesos = sum(item.get_total for item in ventas_hoy.filter(moneda='Pesos'))
     ventas_hoy_usd = sum(item.get_total for item in ventas_hoy.filter(moneda='Dolares'))
     ventas_hoy_bs = sum(item.get_total for item in ventas_hoy.filter(moneda='Bolivianos'))
+
+    # Calcular los totales de ventas por moneda
+    ventas_hoy_pesos_c1 = sum(item.get_total for item in ventas_hoy_caja_1.filter(moneda='Pesos'))
+    ventas_hoy_usd_c1 = sum(item.get_total for item in ventas_hoy_caja_1.filter(moneda='Dolares'))
+    ventas_hoy_bs_c1 = sum(item.get_total for item in ventas_hoy_caja_1.filter(moneda='Bolivianos'))
+
+    # Calcular los totales de ventas por moneda
+    ventas_hoy_pesos_c2 = sum(item.get_total for item in ventas_hoy_caja_2.filter(moneda='Pesos'))
+    ventas_hoy_usd_c2 = sum(item.get_total for item in ventas_hoy_caja_2.filter(moneda='Dolares'))
+    ventas_hoy_bs_c2 = sum(item.get_total for item in ventas_hoy_caja_2.filter(moneda='Bolivianos'))
 
     # Obtener todas las ventas del día actual
 
@@ -429,11 +473,6 @@ def balance(request):
         fecha__year=fecha_actual.year, fecha__month=fecha_actual.month
     ).aggregate(total_compras_mes_actual=Sum('total'))['total_compras_mes_actual']
 
-
-
-
-
-
     fecha_actual = date.today()
         # Obtener la fecha actual menos 30 días
     fecha_30_dias_atras = fecha_actual - timedelta(days=30)
@@ -441,7 +480,13 @@ def balance(request):
     # Inicializar el diccionario de ventas en los últimos 30 días
     ventas_30_dias = {}
   
-    ventas_por_dia = DetalleVenta.objects.filter(fecha__range=(fecha_30_dias_atras, fecha_actual)).values('fecha__day').annotate(
+    ventas_por_dia = DetalleVenta.objects.filter(fecha__range=(fecha_30_dias_atras, fecha_actual),moneda="Pesos").values('fecha__day').annotate(
+        total_ventas=Sum(ExpressionWrapper(F('cantidad') * F('precio'), output_field=DecimalField()))
+    )
+    ventas_por_dia_usd = DetalleVenta.objects.filter(fecha__range=(fecha_30_dias_atras, fecha_actual),moneda="Dolares").values('fecha__day').annotate(
+        total_ventas=Sum(ExpressionWrapper(F('cantidad') * F('precio'), output_field=DecimalField()))
+    )
+    ventas_por_dia_bs = DetalleVenta.objects.filter(fecha__range=(fecha_30_dias_atras, fecha_actual),moneda="Bolivianos").values('fecha__day').annotate(
         total_ventas=Sum(ExpressionWrapper(F('cantidad') * F('precio'), output_field=DecimalField()))
     )
     # Llenar el diccionario con las sumatorias de ventas por día
@@ -460,6 +505,14 @@ def balance(request):
         'ventas_hoy_usd': ventas_hoy_usd or 0,
         'ventas_hoy_bs': ventas_hoy_bs or 0,
 
+        'ventas_hoy_pesos_c1': ventas_hoy_pesos_c1 or 0,
+        'ventas_hoy_usd_c1': ventas_hoy_usd_c1 or 0,
+        'ventas_hoy_bs_c1': ventas_hoy_bs_c1 or 0,
+
+        'ventas_hoy_pesos_c2': ventas_hoy_pesos_c2 or 0,
+        'ventas_hoy_usd_c2': ventas_hoy_usd_c2 or 0,
+        'ventas_hoy_bs_c2': ventas_hoy_bs_c2 or 0,
+
         'ventas_mes_pesos': ventas_mes_pesos or 0,
         'ventas_mes_usd': ventas_mes_usd or 0,
         'ventas_mes_bs': ventas_mes_bs or 0,
@@ -472,7 +525,8 @@ def balance(request):
         'top_ventas':top_ventas,
         'ventas_30_dias':ventas_30_dias,
         'ventas_por_dia':ventas_por_dia,
-  
+        'ventas_por_dia_usd':ventas_por_dia_usd,       
+        'ventas_por_dia_bs':ventas_por_dia_bs, 
     }
 
     return render(request, 'balance.html', context)
@@ -541,18 +595,18 @@ def vaciar_carrito(venta_id):
         eliminar_de_carrito(detalleventa.id)
 
 
-def obtener_venta_actual():
+def obtener_venta_actual(caja_usuario):
     """
     Método que retorna la venta actual, se pueden seguir realizando acciones en la venta hasta que la venta se encuentre
     en estado cancelada, finalizada o anulada
     :return Venta:
     """
-    venta = Venta.objects.filter(estado=Venta.ESTADO_FACTURADA).first()
+    venta = Venta.objects.filter(estado=Venta.ESTADO_FACTURADA, nombre_factura=caja_usuario).first()
     if not venta:
-        venta = Venta.objects.filter(estado=Venta.ESTADO_PAGADA).first()
+        venta = Venta.objects.filter(estado=Venta.ESTADO_PAGADA, nombre_factura=caja_usuario).first()
     if not venta:
         # Si no existe una venta en estado creado, la creamos
-        venta, create = Venta.objects.get_or_create(estado=Venta.ESTADO_CREADA)
+        venta, create = Venta.objects.get_or_create(estado=Venta.ESTADO_CREADA, nombre_factura=caja_usuario)
         venta.save()
 
     if not venta.codigo:
@@ -571,3 +625,9 @@ def devolver_productos_a_stock(id_venta):
         # Aumentamos el stock de los productos que estaban en la venta que ha sido cancelada/anulada
         detalleventa.producto.en_stock = detalleventa.producto.en_stock + detalleventa.cantidad
         detalleventa.producto.save()
+
+
+
+
+
+
