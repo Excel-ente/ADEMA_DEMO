@@ -26,7 +26,7 @@ class DetalleVentaAdmin(ImportExportModelAdmin):
 
 
 @admin.register(Venta)
-class VentaAdmin(admin.ModelAdmin):
+class VentaAdmin(ImportExportModelAdmin):
     list_display = ('codigo','fecha','cajero','cliente','total_factura','ESTADO')
     exclude = ('nit','nombre_factura','total')
    # readonly_fields =  ('codigo','cliente','fecha','total_factura','razon_cancelacion','estado')
