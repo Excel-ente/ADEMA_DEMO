@@ -17,21 +17,10 @@
     <div class="card-header bg-primary text-white">
         <h1 class="text-white">Balance</h1>
     </div>
-    <div class="card-body">
-         <!-- Tarjetas -->
-        <div class="row">
-          <div class="card">
-            <div class="card-header text-light bg-primary">Movimientos últimos 20 dias</div>
-              <div class="card-body">
-                <canvas id="myChart"></canvas>
-              </div>
-          </div>
-          
-        </div>
-        <hr>     
+    <div class="card-body">  
         <!-- Tarjetas -->
         <div class="row">
-            <div class="col-lg-3 col-md-6 col-sm-12">                
+            <div class="col-lg-3 col-md-6 col-sm-12" style="font-size: large;">                
                 <div class="card border-primary">
                     <div class="card-header bg-primary">
                         <b>
@@ -45,7 +34,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-lg-3 col-md-6 col-sm-12">                
+            <div class="col-lg-3 col-md-6 col-sm-12" style="font-size: large;">                
               <div class="card  border-primary">
                   <div class="card-header bg-primary">
                       <b>
@@ -59,7 +48,7 @@
                   </div>
               </div>
             </div>
-            <div class="col-lg-3 col-md-6 col-sm-12">                
+            <div class="col-lg-3 col-md-6 col-sm-12" style="font-size: large;">                
               <div class="card border-primary">
                 <div class="card-header bg-primary">
                     <b>
@@ -73,7 +62,7 @@
                 </div>
               </div>
             </div>
-            <div class="col-lg-3 col-md-6 col-sm-12">                
+            <div class="col-lg-3 col-md-6 col-sm-12" style="font-size: large;">                
               <div class="card border-primary">
                 <div class="card-header bg-primary">
                     <b>
@@ -89,11 +78,44 @@
             </div>
         </div>
         <hr>
-        <!-- Total ventas del dia -->
+        <!-- Grafico -->
+        <div class="row">
+          <div class="card mb-3" style="height: 400px;">
+            <div class="card-header text-light bg-primary" style="font-size: xx-large;"><b>Ventas últimos 20 dias</b></div>
+              <div class="card-body">
+                <canvas id="myChart"></canvas>
+              </div>
+          </div>
+          
+        </div>
+        <!-- Tabla ranking productos -->
         <div class="row">
             <div class="col-6">
                 <div class="card">
-                    <div class="card-header text-light bg-primary">Total de ventas del dia </div>
+                    <div class="card-header text-light bg-primary" style="font-size: x-large;"><b>Top 10 | Productos más vendidos</b></div>
+                    <div class="card-body">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Producto</th>
+                                    <th>Cant. Vendido</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for venta in top_ventas %}
+                                <tr>
+                                    <td>{{ venta.producto__nombre }} {{ venta.producto__nombre }}</td>
+                                    <td>{{ venta.total_ventas|intcomma }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="card col-12 mb-3">
+                    <div class="card-header text-light bg-primary" style="font-size: x-large;"><b>Total de ventas del dia</b></div>
                     <div class="card-body">
                         <table class="table table-striped">
                             <thead>
@@ -134,10 +156,8 @@
                         </table>
                     </div>
                 </div>
-            </div>
-            <div class="col-6">
-              <div class="card">
-                  <div class="card-header text-light bg-primary">Total de ventas del mes actual </div>
+                <div class="card col-12 mb-3">
+                  <div class="card-header text-light bg-primary" style="font-size: x-large;"><b>Total de ventas del mes actual</b></div>
                   <div class="card-body">
                       <table class="table table-striped">
                           <thead>
@@ -159,36 +179,6 @@
                       </table>
                   </div>
               </div>
-          </div>
-        </div>
-        <hr>
-        <!-- Tabla ranking productos -->
-        <div class="row">
-            <div class="col-6">
-                <div class="card">
-                    <div class="card-header text-light bg-primary">Top 10 | Productos más vendidos</div>
-                    <div class="card-body">
-                        <table class="table table-striped">
-                            <thead>
-                                <tr>
-                                    <th>Producto</th>
-                                    <th>Cant. Vendido</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for venta in top_ventas %}
-                                <tr>
-                                    <td>{{ venta.producto__nombre }} {{ venta.producto__nombre }}</td>
-                                    <td>{{ venta.total_ventas|intcomma }}</td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-            <div class="col-6">
-
             </div>
         </div>
     </div>
@@ -202,9 +192,12 @@
 
   const ctx = document.getElementById('myChart');
 
+  // Obtén las fechas en formato "DD/MM" desde Django y almacénalas en una lista
+  const fechas = [{% for venta in ventas_por_dia %} '{{ venta.fecha|date:"d/m" }}', {% endfor %}];
+
   new Chart(ctx, {
   data: {
-    labels: [{% for venta in ventas_por_dia %} {{ venta.fecha__day }}, {% endfor %}],
+    labels:fechas,
     datasets: [
     {
       type: 'line',
@@ -280,7 +273,7 @@
           drawBorder: true
         },
         ticks: {
-          maxTicksLimit: 10
+          maxTicksLimit: 20
         }
       }],
       yAxes: [{
@@ -330,7 +323,7 @@
       anchor: 'end',
       align: 'end',
       font: {
-        size: 12,
+        size: 14,
       }
     }
   },
