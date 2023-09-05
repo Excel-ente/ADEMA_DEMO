@@ -1,10 +1,10 @@
 from django.contrib import admin
 from compra.models import Compra
 from django.core.exceptions import ValidationError
-
+from import_export.admin import ImportExportModelAdmin
 
 @admin.register(Compra)
-class CompraAdmin(admin.ModelAdmin):
+class CompraAdmin(ImportExportModelAdmin):
     list_display = ('status', 'viaje', 'producto', 'cantidad', 'costo', 'total_')
     exclude = ('total', 'estado')
 

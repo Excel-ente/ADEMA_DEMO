@@ -19,7 +19,7 @@ from agenda.models import Gasto,Retiro
 from compra.models import Compra
 from producto.models import Producto
 from agenda.models import Cliente,Asignacion
-
+from django.core.paginator import Paginator
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.template.loader import get_template
@@ -86,15 +86,6 @@ def imprimir_ticket(request, venta_id):
         return HttpResponse('Error al generar el PDF', status=500)
 
     return response
-
-
-# Función para cargar recursos externos cuando se genera el PDF
-#def fetch_resources(uri, rel):
- #   from django.conf import settings
-#
- #   path = static(uri.replace(settings.STATIC_URL, ""))
-  #  return path
-
 
 @method_decorator(login_required, name='dispatch')
 class VentaList(ListView):
@@ -248,6 +239,12 @@ def dashboard(request):
         
         ventas_filtradas = Venta.objects.all().order_by('-fecha')
     
+    page_size = 50  # Define la cantidad de elementos por página
+    paginator = Paginator(lista_ventas, page_size)
+    page_number = request.GET.get('page')  # Obtener el número de página de la solicitud GET
+    page = paginator.get_page(page_number)  # Obtener la página actual
+
+
     # Calcular el total de ventas filtrado por moneda="Pesos"
     total_ars = sum(item.get_total for item in lista_ventas if item.moneda == 'Pesos')
     # Calcular el total de ventas filtrado por moneda="Dolares"
@@ -267,6 +264,7 @@ def dashboard(request):
 
     context = {
         'lista_ventas': lista_ventas, 
+        'page': page,
         'mes':mes,
         'total_ars':total_ars,
         'total_usd':total_usd,

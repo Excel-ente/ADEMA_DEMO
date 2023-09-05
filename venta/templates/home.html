@@ -80,7 +80,7 @@
                     </tr>
                     </thead>
                     <tbody>
-                    {% for detalle in lista_ventas %}
+                    {% for detalle in page %}
                         <tr>
                             <td># {{ detalle.venta.pk }}</td>
                             <td>{{ detalle.venta.fecha }}</td>
