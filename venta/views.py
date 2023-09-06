@@ -114,7 +114,7 @@ class VentaList(ListView):
             lista_ventas = DetalleVenta.objects.filter(venta__in=ventas_filtradas)
 
         else:
-            ventas_filtradas = Venta.objects.all().order_by('-fecha')
+            ventas_filtradas = Venta.objects.all(venta__fecha__date=fecha_actual).order_by('-fecha')
 
 
         # Calcular el total de ventas dentro del rango
