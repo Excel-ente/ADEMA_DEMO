@@ -93,12 +93,16 @@ class VentaList(ListView):
     queryset = Venta.objects.all().order_by('fecha')
 
     def get_context_data(self, **kwargs):
+
         context = super().get_context_data(**kwargs)
 
         desde = self.request.GET.get('desde')
         hasta = self.request.GET.get('hasta')
 
-        lista_ventas = DetalleVenta.objects.all()
+        # Obtener la fecha actual
+        fecha_actual = date.today()
+
+        lista_ventas = DetalleVenta.objects.filter(venta__fecha__date=fecha_actual).order_by('-id')
 
         if desde and hasta:
             # Filtrar las ventas dentro del rango de fechas especificado
