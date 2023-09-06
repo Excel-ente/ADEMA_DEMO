@@ -90,10 +90,29 @@ def imprimir_ticket(request, venta_id):
 @method_decorator(login_required, name='dispatch')
 class VentaList(ListView):
     model = Venta
-    queryset = Venta.objects.all().order_by('fecha')
+    template_name = 'tu_template.html'  # Reemplaza 'tu_template.html' por el nombre de tu plantilla
+    context_object_name = 'venta_list'  # Nombre del objeto en el contexto
+
+    def get_queryset(self):
+        # Obtener la fecha actual
+        fecha_actual = date.today()
+
+        # Filtrar las ventas del día actual por defecto
+        queryset = Venta.objects.filter(fecha__date=fecha_actual).order_by('-fecha')
+
+        desde = self.request.GET.get('desde')
+        hasta = self.request.GET.get('hasta')
+
+        if desde and hasta:
+            # Filtrar las ventas dentro del rango de fechas especificado
+            queryset = Venta.objects.filter(
+                fecha__date__range=[desde, hasta],  # Utilizar el rango de fechas
+                estado__in=[1, 2, 3, 5]  # Filtrar por estados específicos
+            ).order_by('-fecha')
+
+        return queryset
 
     def get_context_data(self, **kwargs):
-
         context = super().get_context_data(**kwargs)
 
         desde = self.request.GET.get('desde')
@@ -102,37 +121,12 @@ class VentaList(ListView):
         # Obtener la fecha actual
         fecha_actual = date.today()
 
+        # Filtrar las ventas del día actual por defecto
         lista_ventas = DetalleVenta.objects.filter(venta__fecha__date=fecha_actual).order_by('-id')
 
-        if desde and hasta:
-            # Filtrar las ventas dentro del rango de fechas especificado
-            ventas_filtradas = Venta.objects.filter(
-                fecha__date__range=[desde, hasta],  # Utilizar el rango de fechas
-                estado__in=[1, 2, 3, 5]  # Filtrar por estados específicos
-            ).order_by('-fecha')
-            # Filtrar los detalles de venta relacionados con las ventas filtradas
-            lista_ventas = DetalleVenta.objects.filter(venta__in=ventas_filtradas)
-
-        else:
-            ventas_filtradas = Venta.objects.all(venta__fecha__date=fecha_actual).order_by('-fecha')
-
-
-        # Calcular el total de ventas dentro del rango
-        total_rango = ventas_filtradas.aggregate(Sum('total'))['total__sum'] or 0
-
-        # Obtener el total de ventas del mes actual
-        argentina_timezone = timezone('America/Argentina/Buenos_Aires')
-        fecha_actual = datetime.now(argentina_timezone)
-
-        # Obtener el nombre del mes actual
-        mes = calendar.month_name[fecha_actual.month]
-        context['mes'] = mes
+        # Resto de tu código de context
 
         context['lista_ventas'] = lista_ventas
-
-        context['venta_list'] = ventas_filtradas
-
-        context['total_rango'] = total_rango
 
         # Agregar cualquier otro contexto adicional que necesites aquí
         return context
