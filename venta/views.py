@@ -216,7 +216,11 @@ def login(request):
 @login_required(login_url='/admin/login/')
 def dashboard(request):
 
-    lista_ventas = DetalleVenta.objects.all().order_by('-id')
+    # Obtener la fecha actual
+    fecha_actual = date.today()
+
+    # Filtrar las ventas del día actual por defecto
+    lista_ventas = DetalleVenta.objects.filter(venta__fecha__date=fecha_actual).order_by('-id')
 
     desde = request.GET.get('desde')  # Obtener el valor desde el parámetro GET
     hasta = request.GET.get('hasta')  # Obtener el valor hasta el parámetro GET
@@ -243,7 +247,6 @@ def dashboard(request):
     paginator = Paginator(lista_ventas, page_size)
     page_number = request.GET.get('page')  # Obtener el número de página de la solicitud GET
     page = paginator.get_page(page_number)  # Obtener la página actual
-
 
     # Calcular el total de ventas filtrado por moneda="Pesos"
     total_ars = sum(item.get_total for item in lista_ventas if item.moneda == 'Pesos')
