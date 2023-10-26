@@ -1,6 +1,6 @@
 from django import forms
 from .models import MONEDAS
-from agenda.models import Cliente,Vendedor
+from agenda.models import Cliente
 from venta.models import Venta
 
 class VentaForm(forms.ModelForm):
@@ -24,10 +24,7 @@ class VentaFacturaForm(forms.ModelForm):
         'class': 'form-control',
         'required': True,
     }))
-    vendedor = forms.ModelChoiceField(queryset=Vendedor.objects.all(), empty_label="Seleccionar Vendedor", widget=forms.Select(attrs={
-        'class': 'form-control',
-        'required': True,
-    }))
+
 
     moneda = forms.ChoiceField(
         choices=[

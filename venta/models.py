@@ -3,7 +3,7 @@ from django.db import models
 
 # Create your models here.
 from django_fsm import FSMField, transition, FSMIntegerField
-from agenda.models import Cliente,Vendedor
+from agenda.models import Cliente
 
 from producto.models import Producto
 from repositories.VentaRepository import VentaRepository
@@ -19,7 +19,7 @@ MONEDAS = [
 class Venta(models.Model):
     codigo = models.CharField(max_length=200, null=True, blank=True)
     cliente = models.ForeignKey(Cliente,on_delete=models.CASCADE,blank=True,null=True)
-    vendedor = models.ForeignKey(Vendedor,on_delete=models.DO_NOTHING,blank=True,null=True)
+    vendedor = models.CharField(max_length=255,blank=True,null=True)
     fecha = models.DateTimeField( null=True, blank=True)
     total = models.DecimalField(max_length=25, decimal_places=2, max_digits=10, null=True)
     total_dolares =  models.DecimalField(max_length=25, decimal_places=2, max_digits=10, null=True)

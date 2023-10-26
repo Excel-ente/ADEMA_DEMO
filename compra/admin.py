@@ -5,7 +5,7 @@ from import_export.admin import ImportExportModelAdmin
 
 @admin.register(Compra)
 class CompraAdmin(ImportExportModelAdmin):
-    list_display = ('status', 'viaje', 'producto', 'cantidad', 'costo', 'total_')
+    list_display = ('status',  'producto', 'cantidad', 'costo', 'total_')
     exclude = ('total', 'estado')
 
     def costo_(self, obj):
@@ -16,7 +16,7 @@ class CompraAdmin(ImportExportModelAdmin):
 
     def status(self, obj):
         if obj.estado == False:
-            return "🛻 En viaje"
+            return "🔴 Pendiente"
         else:
             return "🟢 Controlado"
 

@@ -1,11 +1,9 @@
 from django.db import models
 from producto.models import Producto
-from agenda.models import Viaje
 from django.core.exceptions import ValidationError
           
 class Compra(models.Model):
     fecha = models.DateField()
-    viaje = models.ForeignKey(Viaje,on_delete=models.DO_NOTHING,blank=False, null=False)
     producto = models.ForeignKey(Producto, on_delete=models.CASCADE)
     cantidad = models.DecimalField(max_digits=25, decimal_places=2)
     costo = models.DecimalField(max_digits=25,decimal_places=2,blank=False,null=False)

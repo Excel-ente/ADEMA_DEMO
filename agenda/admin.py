@@ -1,26 +1,15 @@
 from django.contrib import admin
-from .models import Cliente,Vendedor,Viaje,Gasto,TipoGasto,Retiro,Asignacion
-# Register your models here.
-admin.site.register(Cliente)
-admin.site.register(Vendedor)
+from .models import Cliente,Gasto,TipoGasto,Retiro,Asignacion
+
+
+
+@admin.register(Cliente)
+class ClienteAdmin(admin.ModelAdmin):
+    list_display = ('nombre','telefono','direccion',)
 
 @admin.register(Asignacion)
 class AsignacionAdmin(admin.ModelAdmin):
     list_display = ('usuario','caja',)
-
-@admin.register(Viaje)
-class ViajeAdmin(admin.ModelAdmin):
-    list_display = ('status','chofer','fecha_llegada','costo_viaje')
-    exclude = ('estado','fecha_salida')
-
-    def costo_viaje(self, obj):
-        return "💲{:,.2f}".format(obj.costo_total_trasnlado)
-    
-    def status(self, obj):
-        if obj.estado == False:
-            return "🛻 En viaje"
-        else:
-            return "🟢 Controlado"
         
 @admin.register(Retiro)
 class RetiroAdmin(admin.ModelAdmin):

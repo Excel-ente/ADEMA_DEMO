@@ -40,37 +40,12 @@ def formatear_fecha(fecha):
 class Cliente(models.Model):
     codigo = models.CharField(unique=True,max_length=200, null=True, blank=True)
     nombre = models.CharField(unique=True,verbose_name='Vendedor',max_length=200, null=True, blank=True)
-    nit = models.CharField(verbose_name="",max_length=20,default=1,blank=True,null=True)
+    telefono = models.CharField(max_length=20,default=1,blank=True,null=True)
     direccion = models.CharField(max_length=200,blank=True,null=True)
 
     
     def __str__(self):
         return self.nombre
-    
-class Vendedor(models.Model):
-    codigo = models.CharField(max_length=200, null=True, blank=True)
-    nombre = models.CharField(unique=True,max_length=200, null=True, blank=True)
-
-    def __str__(self):
-        return self.nombre
-    
-
-class Viaje(models.Model):
-    estado = models.BooleanField(default=False)
-    chofer = models.CharField(max_length=120, null=False, blank=False)
-    patente_camion = models.CharField(max_length=120, null=False, blank=False)
-    patente_semi = models.CharField(max_length=120, null=True, blank=True)
-    fecha_salida = models.DateField(auto_now=True, null=False, blank=False)
-    fecha_llegada = models.DateField(null=False, blank=False)
-    costo_total_trasnlado = models.DecimalField(verbose_name="Costo de Translado",max_digits=15, decimal_places=2, null=False, blank=False)
-
-    def __str__(self):
-        
-        if self.estado == True:
-            return f'{self.chofer} | llega: 📆 {formatear_fecha(self.fecha_llegada)}'
-        else:
-            return f'{self.chofer} | llegó: 📆 {formatear_fecha(self.fecha_llegada)}'
-        
 
 class TipoGasto(models.Model):
     descripcion = models.CharField(max_length=255,unique=True,blank=False,null=False)
